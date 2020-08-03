@@ -10,13 +10,21 @@ pub fn init_window(
     title: &str,
     width: u32,
     height: u32
-
 ) -> winit::window::Window {
     winit::window::WindowBuilder::new() 
-    .with_title(WINDOW_TITLE)
+    .with_title(title)
     .with_inner_size(winit::dpi::LogicalSize::new(width, height))
     .build(event_loop)
     .expect("Failed to create window!")
+}
+
+pub trait VulkanApp {
+    fn draw_frame(&mut self, delta_time: f32);
+    fn recreate_swapchain(&mut self);
+    fn cleanup_swapchain(&self);
+    fn wait_device_idle(&self);
+    fn resize_framebuffer(&mut self);
+    fn window_ref(&self) -> &winit::window::Window;
 }
 
 pub struct ProgramProc {
@@ -32,11 +40,11 @@ impl ProgramProc {
         ProgramProc { event_loop }
     }
     
-    pub fn main_loop(event_loop: EventLoop<()>) {
+    pub fn main_loop<A: 'static + VulkanApp>(self, mut vulkan_app: A) {
 
         let mut tick_counter = super::fps_limiter::FPSLimiter::new();
 
-        event_loop.run(move |event, _, control_flow| {
+        self.event_loop.run(move |event, _, control_flow| {
 
             match event {
                 // handle window events
@@ -65,7 +73,7 @@ impl ProgramProc {
                             }
                             // end of handling key cases
                         }, 
-                         | WindowEvent::Resized(_new_size) = {
+                         | WindowEvent::Resized(_new_size) => {
                             vulkan_app.wait_device_idle();
                             vulkan_app.resize_framebuffer();
                          },
@@ -76,10 +84,10 @@ impl ProgramProc {
                     vulkan_app.window_ref().request_redraw();
                 },
                 | Event::RedrawRequested(_window_id) => {
-                    let delta+time = tick_counter.delta_time();
+                    let delta_time = tick_counter.delta_time();
                     vulkan_app.draw_frame(delta_time);
 
-                    is IS_PAINT_FPS_COUNTER {
+                    if IS_PAINT_FPS_COUNTER {
                         print!("FPS: {}\r", tick_counter.fps());
                     }
 

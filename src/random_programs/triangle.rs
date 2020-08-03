@@ -1,3 +1,7 @@
+use vk_playground::{
+    utility,
+};
+
 use ash::version::DeviceV1_0;
 use ash::version::InstanceV1_0;
 use ash::vk;
@@ -52,13 +56,13 @@ struct VulkanApp {
 }
 
 impl VulkanApp {
-    fn init_window(event_loop: &EventLoop<()>) -> winit::window::Window {
-        winit::window::WindowBuilder::new() 
-        .with_title(WINDOW_TITLE)
-        .with_inner_size(winit::dpi::LogicalSize::new(WINDOW_WIDTH,WINDOW_HEIGHT))
-        .build(event_loop)
-        .expect("Failed to create window!")
+    pub fn new(event_loop: &winit::event_loop::EventLoop<()>) -> VulkanApp {
+        
+        let window = utility::window::init_window(); 
     }
+}
+
+impl VulkanApp {
 
     pub fn main_loop(event_loop: EventLoop<()>) {
 
@@ -104,7 +108,7 @@ impl VulkanApp {
 fn main() {
 
     let event_loop = EventLoop::new();    
-    let _window = VulkanApp::init_window(&event_loop);
+    let vulkan_app= VulkanApp::new(&event_loop);
 
     VulkanApp::main_loop(event_loop);
 }

@@ -42,7 +42,7 @@ impl FPSLimiter {
     }
 
     // calculate current FPS
-    pub fn fps(&self) -> {
+    pub fn fps(&self) -> f32 {
         let mut sum = 0_u32;
         self.samples.iter().for_each(|val| {
             sum += val;
@@ -55,8 +55,4 @@ impl FPSLimiter {
     pub fn delta_time(&self) -> f32 {
         self.delta_frame as f32 / 1000_000.0_f32 // time in seconds
     }
-
-
-
-
 }
