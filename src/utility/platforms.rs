@@ -1,7 +1,7 @@
 use ash::version::{EntryV1_0, InstanceV1_0};
 use ash::vk;
 
-#[cfg(target_os = "unix")]
+#[cfg(all(unix, not(target_os = "android"), not(target_os = "macos")))]
 use ash::extensions::khr::XlibSurface;
 // #[cfg(target_os = "windows")]
 // use ash::extensions::khr::Win32Surface;
@@ -9,7 +9,7 @@ use ash::extensions::khr::XlibSurface;
 use ash::extensions::ext::DebugUtils;
 use ash::extensions::khr::Surface;
 
-#[cfg(target_os = "unix")]
+#[cfg(all(unix, not(target_os = "android"), not(target_os = "macos")))]
 pub fn required_extension_names() -> Vec<*const i8> {
     vec![
         Surface::name().as_ptr(),
@@ -18,7 +18,7 @@ pub fn required_extension_names() -> Vec<*const i8> {
     ]
 }
 
-#[cfg(target_os = "unix")]
+#[cfg(all(unix, not(target_os = "android"), not(target_os = "macos")))]
 pub unsafe fn create_surface<E: EntryV1_0, I: InstanceV1_0>(
     entry: &E,
     instance: &I,

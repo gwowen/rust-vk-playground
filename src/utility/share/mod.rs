@@ -11,8 +11,9 @@ use std::ptr;
 
 use crate::utility::constants::*;
 use crate::utility::debug;
-use crate::utility::structures::*;
 use crate::utility::platforms;
+use crate::utility::structures::*;
+
 
 pub fn create_instance(
     entry: &ash::Entry,
@@ -96,7 +97,7 @@ pub fn create_surface(
 )   -> SurfaceStuff {
 
     let surface = unsafe {
-        platforms::create_surface(entry, instance, window).expect("Failed to create surface!");
+        platforms::create_surface(entry, instance, window).expect("Failed to create surface!")
     };
 
     let surface_loader = ash::extensions::khr::Surface::new(entry, instance);
@@ -238,7 +239,7 @@ pub fn create_logical_device(
 
     let device: ash::Device = unsafe {
         instance
-            .create_device((physical_device, &device_create_info, None)
+            .create_device(physical_device, &device_create_info, None)
             .expect("Failed to create logical device!")
     };
 
