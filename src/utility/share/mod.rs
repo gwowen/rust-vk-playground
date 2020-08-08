@@ -251,7 +251,41 @@ pub fn find_queue_family(
     physical_device: vk::PhysicalDevice,
     surface_stuff: &SurfaceStuff
 ) -> QueueFamilyIndices {
+    let queue_families = 
+        unsafe { instance.get_physical_device_queue_family_properties(physical_device) };
 
+    let mut queue_family_indices = QueueFamilyIndices::new();
+
+    let mut index = 0;
+    for queue_family in queue_families.iter() {
+        if queue_family.queue_count > 0
+            && queue_family.queue_flags.contains(vk::QueueFlags::GRAPHICS)
+            {
+                queue_family_indices.graphics_family = Some(index);
+            }
+        
+        let is_present_support = unsafe {
+            surface_stuff
+                .surface_loader
+                .get_physical_device_surface_support(
+                    physical_device,
+                    index as u32,
+                    surface_stuff.surface,
+                )
+        };
+
+        if queue_family.queue_count > 0 && is_present_support {
+            queue_family_indices.present_family = Some(index);
+        }
+
+        if queue_family_indices.is_complete() {
+            break;
+        }
+
+        index += 1;
+    }
+
+    queue_family_indices
 }
 
 pub fn check_device_extension_support(
@@ -259,7 +293,31 @@ pub fn check_device_extension_support(
     physical_device: vk::PhysicalDevice,
     device_extensions: &DeviceExtension,
 ) -> bool {
+    let available_extensions = unsafe {
+        instance
+            .enumerate_device_extension_properties(physical_device)
+            .expect("Failed to get device extension properties")
+    };
 
+    let mut available_extension_names = vec![];
+
+    for extension in available_extensions.iter() {
+        let extension_name = super::tools::vk_to_string(&extension.extension_name);
+
+        available_extension_names.push(extension_name);
+    }
+
+    use std::collections::HashSet;
+    let mut required_extensions = HashSet::new();
+    for extension in device_extensions.names.iter() {
+        required_extensions.insert(extension.to_string());
+    }
+
+    for extension_name in available_extension_names.iter() {
+        required_extensions.remove(extension_name);
+    }
+
+    return required_extensions.is_empty();
 }
 
 pub fn query_swapchain_support(
@@ -267,6 +325,26 @@ pub fn query_swapchain_support(
     surface_stuff: &SurfaceStuff
 ) -> SwapChainSupportDetail {
 
+    unsafe {
+        let capabilities = surface_stuff
+            .surface_loader
+            .get_physical_device_surface_capabilities(physical_device, surface_stuff.surface)
+            .expect("Failed to query for surface capabilities");
+        let formats = surface_stuff
+            .surface_loader
+            .get_physical_device_surface_formats(physical_device, surface_stuff.surface)
+            .expect("Failed to queryt for surface formats");
+        let present_modes = surface_stuff
+            .surface_loader
+            .get_physical_device_surface_present_modes(physical_device, surface_stuff.surface)
+            .expect("Failed to query for surface present mode");
+
+        SwapChainSupportDetail {
+            capabilities,
+            formats,
+            present_modes,
+        }
+    }
 }
 
 pub fn create_swapchain(
@@ -274,32 +352,153 @@ pub fn create_swapchain(
     device: &ash::Device,
     physical_device: vk::PhysicalDevice,
     window: &winit::window::Window,
+    surface_stuff: &SurfaceStuff,
     queue_family: &QueueFamilyIndices,
 ) -> SwapChainStuff {
 
+    let swapchain_support = query_swapchain_support(physical_device, surface_stuff);
+
+    let surface_format = choose_swapchain_format(&swapchain_support.formats);
+    let present_mode = choose_swapchain_present_mode(&swapchain_support.present_modes);
+    let extent = choose_swapchain_extent(&swapchain_support.capabilities, window);
+
+    let image_count = swapchain_support.capabilities.min_image_count + 1;
+    let image_count = if swapchain_support.capabilities.max_image_count > 0 {
+        image_count.min(swapchain_support.capabilities.max_image_count)
+    } else {
+        image_count
+    };
+
+    let (image_sharing_mode, queue_family_index_count, queue_family_indices) = 
+        if queue_family.graphics_family != queue_family.present_family {
+            (
+                vk::SharingMode::CONCURRENT,
+                2,
+                vec![
+                    queue_family.graphics_family.unwrap(),
+                    queue_family.present_family.unwrap(),
+                ],
+            )
+        } else {
+            (vk::SharingMode::EXCLUSIVE, 0, vec![])
+        };
+    
+    let swapchain_create_info = vk::SwapchainCreateInfoKHR {
+        s_type: vk::StructureType::SWAPCHAIN_CREATE_INFO_KHR,
+        p_next: ptr::null(),
+        flags: vk::SwapchainCreateFlagsKHR::empty(),
+        surface: surface_stuff.surface,
+        min_image_count: image_count,
+        image_color_space: surface_format.color_space,
+        image_format: surface_format.format,
+        image_extent: extent,
+        image_usage: vk::ImageUsageFlags::COLOR_ATTACHMENT,
+        image_sharing_mode,
+        p_queue_family_indices: queue_family_indices.as_ptr(),
+        queue_family_index_count,
+        pre_transform: swapchain_support.capabilities.current_transform,
+        composite_alpha: vk::CompositeAlphaFlagsKHR::OPAQUE,
+        present_mode,
+        clipped: vk::TRUE,
+        old_swapchain: vk::SwapchainKHR::null(),
+        image_array_layers: 1, 
+    };
+
+    let swapchain_loader = ash::extensions::khr::Swapchain::new(instance, device);
+    let swapchain = unsafe {
+        swapchain_loader
+            .create_swapchain(&swapchain_create_info, None)
+            .expect("Failed to create swapchain")
+    };
+
+    let swapchain_images = unsafe {
+        swapchain_loader
+            .get_swapchain_images(swapchain)
+            .expect("Failed to get swapchain images")
+    };
+
+    SwapChainStuff {
+        swapchain_loader,
+        swapchain,
+        swapchain_format: surface_format.format,
+        swapchain_extent: extent,
+        swapchain_images
+    }
 }
 
 pub fn choose_swapchain_format(
     available_formats: &Vec<vk::SurfaceFormatKHR>,
 ) -> vk::SurfaceFormatKHR {
 
+    for available_format in available_formats {
+        if available_format.format == vk::Format::B8G8R8A8_SRGB
+            && available_format.color_space == vk::ColorSpaceKHR::SRGB_NONLINEAR
+        {
+            return available_format.clone();
+        }
+    }
+
+    return available_formats.first().unwrap().clone();
 }
 
 pub fn choose_swapchain_present_mode(
     available_present_modes: &Vec<vk::PresentModeKHR>,
 ) -> vk::PresentModeKHR {
 
+    for &available_present_mode in available_present_modes.iter() {
+        if available_present_mode == vk::PresentModeKHR::MAILBOX {
+            return available_present_mode;
+        }
+    }
+
+    vk::PresentModeKHR::FIFO
 }
 
 pub fn choose_swapchain_extent(
     capabilities: &vk::SurfaceCapabilitiesKHR,
     window: &winit::window::Window,
 ) -> vk::Extent2D {
+    if capabilities.current_extent.width != u32::max_value() {
+        capabilities.current_extent
+    } else {
+        use num::clamp;
 
+        let window_size = window
+            .inner_size();
+        println!(
+            "\t\tInner Window Size: ({}, {})",
+            window_size.width, window_size.height
+        );
+
+        vk::Extent2D {
+            width: clamp(
+                window_size.width as u32,
+                capabilities.min_image_extent.width,
+                capabilities.max_image_extent.width,
+            ),
+            height: clamp(
+                window_size.height as u32,
+                capabilities.min_image_extent.height,
+                capabilities.max_image_extent.height,
+            ),
+        }
+    }
 }
 
 pub fn create_shader_module(device: &ash::Device, code: Vec<u8>) -> vk::ShaderModule {
+    let shader_module_create_info = vk::ShaderModuleCreateInfo {
+        s_type: vk::StructureType::SHADER_MODULE_CREATE_INFO,
+        p_next: ptr::null(),
+        flags: vk::ShaderModuleCreateFlags::empty(),
+        code_size: code.len(),
+        p_code: code.as_ptr() as *const u32,
+    };
 
+    unsafe {
+        device
+            .create_shader_module(&shader_module_create_info, None)
+            .expect("Failed to create Shader Module!")
+    }
 }
 
 pub fn create_buffer(
@@ -310,6 +509,51 @@ pub fn create_buffer(
     device_memory_properties: &vk::PhysicalDeviceMemoryProperties,
 ) -> (vk::Buffer, vk::DeviceMemory) {
 
+
+    let buffer_create_info = vk::BufferCreateInfo {
+        s_type: vk::StructureType::BUFFER_CREATE_INFO,
+        p_next: ptr::null(),
+        flags: vk::BufferCreateFlags::empty(),
+        size,
+        usage,
+        sharing_mode: vk::SharingMode::EXCLUSIVE,
+        queue_family_index_count: 0,
+        p_queue_family_indices: ptr::null(),
+    };
+
+    let buffer = unsafe {
+        device
+            .create_buffer(&buffer_create_info, None)
+            .expect("Failed to create Vertex Buffer")
+    };
+
+    let mem_requirements = unsafe { device.get_buffer_memory_requirements(buffer) };
+    let memory_type = find_memory_type(
+        mem_requirements.memory_type_bits,
+        required_memory_properties,
+        device_memory_properties,
+    );
+
+    let allocate_info = vk::MemoryAllocateInfo {
+        s_type: vk::StructureType::MEMORY_ALLOCATE_INFO,
+        p_next: ptr::null(),
+        allocation_size: mem_requirements.size,
+        memory_type_index: memory_type,
+    };
+
+    let buffer_memory = unsafe {
+        device
+            .allocate_memory(&allocate_info, None)
+            .expect("Failed to allocate vertex buffer memory!")
+    };
+
+    unsafe {
+        device
+            .bind_buffer_memory(buffer, buffer_memory, 0)
+            .expect("Failed to bind Buffer");
+    }
+
+    (buffer, buffer_memory)
 }
 
 pub fn copy_buffer(
@@ -320,13 +564,53 @@ pub fn copy_buffer(
     dst_buffer: vk::Buffer,
     size: vk::DeviceSize,
 ) {
+    let command_buffer = begin_single_time_command(device, command_pool);
+
+    let copy_regions = [vk::BufferCopy {
+        src_offset: 0,
+        dst_offset: 0,
+        size,
+    }];
+
+    unsafe {
+        device.cmd_copy_buffer(command_buffer, src_buffer, dst_buffer, &copy_regions);
+    }
+
+    end_single_time_command(device, command_pool, submit_queue, command_buffer);
 
 }
 pub fn begin_single_time_command(
     device: &ash::Device,
     command_pool: vk::CommandPool,
-) -> vkCommandBuffer {
+) -> vk::CommandBuffer {
+    let command_buffer_allocate_info = vk::CommandBufferAllocateInfo {
+        s_type: vk::StructureType::COMMAND_BUFFER_ALLOCATE_INFO,
+        p_next: ptr::null(),
+        command_buffer_count: 1,
+        command_pool,
+        level: vk::CommandBufferLevel::PRIMARY,
+    };
 
+    let command_buffer = unsafe {
+        device
+            .allocate_command_buffers(&command_buffer_allocate_info)
+            .expect("Failed to allocate Command Buffers!")
+    }[0];
+
+    let command_buffer_begin_info = vk::CommandBufferBeginInfo {
+        s_type: vk::StructureType::COMMAND_BUFFER_BEGIN_INFO,
+        p_next: ptr::null(),
+        p_inheritance_info: ptr::null(),
+        flags: vk::CommandBufferUsageFlags::ONE_TIME_SUBMIT,
+    };
+
+    unsafe {
+        device
+            .begin_command_buffer(command_buffer, &command_buffer_begin_info)
+            .expect("Failed to begin recording Command Buffer at beginning!");
+    }
+
+    command_buffer
 }
 
 pub fn end_single_time_command(
@@ -335,19 +619,56 @@ pub fn end_single_time_command(
     submit_queue: vk::Queue,
     command_buffer: vk::CommandBuffer,
 ) {
+    unsafe {
+        device
+            .end_command_buffer(command_buffer)
+            .expect("Failed to record Command Buffer at Ending!");
+    }
+
+    let buffers_to_submit = [command_buffer];
+
+    let sumbit_infos = [vk::SubmitInfo {
+        s_type: vk::StructureType::SUBMIT_INFO,
+        p_next: ptr::null(),
+        wait_semaphore_count: 0,
+        p_wait_semaphores: ptr::null(),
+        p_wait_dst_stage_mask: ptr::null(),
+        command_buffer_count: 1,
+        p_command_buffers: buffers_to_submit.as_ptr(),
+        signal_semaphore_count: 0,
+        p_signal_semaphores: ptr::null(),
+    }];
+
+    unsafe {
+        device
+            .queue_submit(submit_queue, &sumbit_infos, vk::Fence::null())
+            .expect("Failed to Queue Submit!");
+        device
+            .queue_wait_idle(submit_queue)
+            .expect("Failed to wait Queue idle!");
+        device.free_command_buffers(command_pool, &buffers_to_submit);
+    }
 
 }
 
 pub fn find_memory_type(
     type_filter: u32,
     required_properties: vk::MemoryPropertyFlags,
-    mem_properties: &vk::PhysicalDevice
+    mem_properties: &vk::PhysicalDeviceMemoryProperties
 ) -> u32 {
+    for (i, memory_type) in mem_properties.memory_types.iter().enumerate() {
+        if (type_filter & (1 << i)) > 0 && memory_type.property_flags.contains(required_properties)
+        {
+            return i as u32;
+        }
+    }
+
+    panic!("Failed to find suitable memory type!")
 
 }
 
 pub fn has_stencil_component(format: vk::Format) -> bool {
-
+    format == vk::Format::D32_SFLOAT_S8_UINT || format == vk::Format::D24_UNORM_S8_UINT
 }
 
 pub fn copy_buffer_to_image(
@@ -359,13 +680,54 @@ pub fn copy_buffer_to_image(
     width: u32,
     height: u32,
 ) {
+    let command_buffer = begin_single_time_command(device, command_pool);
 
+    let buffer_image_regions = [vk::BufferImageCopy {
+        image_subresource: vk::ImageSubresourceLayers {
+            aspect_mask: vk::ImageAspectFlags::COLOR,
+            mip_level: 0,
+            base_array_layer: 0,
+            layer_count: 1,
+        },
+        image_extent: vk::Extent3D {
+            width,
+            height,
+            depth: 1,
+        },
+        buffer_offset: 0,
+        buffer_image_height: 0,
+        buffer_row_length: 0,
+        image_offset: vk::Offset3D { x: 0, y: 0, z: 0 },
+    }];
+
+    unsafe {
+        device.cmd_copy_buffer_to_image(
+            command_buffer,
+            buffer,
+            image,
+            vk::ImageLayout::TRANSFER_DST_OPTIMAL,
+            &buffer_image_regions,
+        );
+    }
+
+    end_single_time_command(device, command_pool, submit_queue, command_buffer);
 }
 
 pub fn find_depth_format(
     instance: &ash::Instance,
     physical_device: vk::PhysicalDevice,
 ) -> vk::Format {
+    find_supported_format(
+        instance,
+        physical_device,
+        &[
+            vk::Format::D32_SFLOAT,
+            vk::Format::D32_SFLOAT_S8_UINT,
+            vk::Format::D24_UNORM_S8_UINT,
+        ],
+        vk::ImageTiling::OPTIMAL,
+        vk::FormatFeatureFlags::DEPTH_STENCIL_ATTACHMENT,
+    )
 
 }
 
@@ -376,11 +738,57 @@ pub fn find_supported_format(
     tiling: vk::ImageTiling,
     features: vk::FormatFeatureFlags,
 ) -> vk::Format {
+    for &format in candidate_formats.iter() {
+        let format_properties =
+            unsafe { instance.get_physical_device_format_properties(physical_device, format) };
+        if tiling == vk::ImageTiling::LINEAR
+            && format_properties.linear_tiling_features.contains(features)
+        {
+            return format.clone();
+        } else if tiling == vk::ImageTiling::OPTIMAL
+            && format_properties.optimal_tiling_features.contains(features)
+        {
+            return format.clone();
+        }
+    }
+
+    panic!("Failed to find supported format!")
 
 }
 
 pub fn load_model(model_path: &Path) -> (Vec<VertexV3>, Vec<u32>) {
+    let model_obj = tobj::load_obj(model_path).expect("Failed to load model object!");
 
+    let mut vertices = vec![];
+    let mut indices = vec![];
+
+    let (models, _) = model_obj;
+    for m in models.iter() {
+        let mesh = &m.mesh;
+
+        if mesh.texcoords.len() == 0 {
+            panic!("Missing texture coordinate for the model.")
+        }
+
+        let total_vertices_count = mesh.positions.len() / 3;
+        for i in 0..total_vertices_count {
+            let vertex = VertexV3 {
+                pos: [
+                    mesh.positions[i * 3],
+                    mesh.positions[i * 3 + 1],
+                    mesh.positions[i * 3 + 2],
+                    1.0,
+                ],
+                color: [1.0, 1.0, 1.0, 1.0],
+                tex_coord: [mesh.texcoords[i * 2], mesh.texcoords[i * 2 + 1]],
+            };
+            vertices.push(vertex);
+        }
+
+        indices = mesh.indices.clone();
+    }
+
+    (vertices, indices)
 }
 
 pub fn check_mipmap_support(
@@ -388,5 +796,15 @@ pub fn check_mipmap_support(
     physical_device: vk::PhysicalDevice,
     image_format: vk::Format,
 ) {
+    let format_properties =
+        unsafe { instance.get_physical_device_format_properties(physical_device, image_format) };
+
+    let is_sample_image_filter_linear_support = format_properties
+        .optimal_tiling_features
+        .contains(vk::FormatFeatureFlags::SAMPLED_IMAGE_FILTER_LINEAR);
+
+    if is_sample_image_filter_linear_support == false {
+        panic!("Texture Image format does not support linear blitting!")
+    }
 
 }
