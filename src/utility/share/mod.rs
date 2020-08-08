@@ -1,6 +1,7 @@
 use ash::version::DeviceV1_0;
-use ash::version::EntryV1_1;
+use ash::version::EntryV1_0;
 use ash::version::InstanceV1_0;
+use ash::vk;
 
 use std::ffi::CString;
 use std::os::raw::c_char;
@@ -11,12 +12,13 @@ use std::ptr;
 use crate::utility::constants::*;
 use crate::utility::debug;
 use crate::utility::structures::*;
+use crate::utility::platforms;
 
 pub fn create_instance(
     entry: &ash::Entry,
     window_title: &str,
     is_enable_debug: bool,
-    required_validation_layers: &<Vec>&str,
+    required_validation_layers: &Vec<&str>,
 ) -> ash::Instance {
     if is_enable_debug
         && debug::check_validation_layer_support(entry, required_validation_layers) == false
@@ -25,10 +27,10 @@ pub fn create_instance(
     }
 
     let app_name = CString::new(window_title).unwrap();
-    let engine_name = CSting::new("Vulkan Engine").unwrap();
+    let engine_name = CString::new("Vulkan Engine").unwrap();
     let app_info = vk::ApplicationInfo {
-        p_application_name: app_name.as_ptr();
-        s_type: vk::StructureType::ApplicationInfo,
+        p_application_name: app_name.as_ptr(),
+        s_type: vk::StructureType::APPLICATION_INFO,
         p_next: ptr::null(),
         application_version: APPLICATION_VERSION,
         p_engine_name: engine_name.as_ptr(),
@@ -40,15 +42,15 @@ pub fn create_instance(
     let debug_utils_create_info = debug::populate_debug_messenger_create_info();
 
     // VK_EXT debug report has been requested here
-    let extension_names = platforms::requested_extension_names();
+    let extension_names = platforms::required_extension_names();
 
-    let required_validation_layer_raw_names: Vec<Cstring> = required_validation_layers
+    let required_validation_layer_raw_names: Vec<CString> = required_validation_layers
         .iter()
         .map(|layer_name| CString::new(*layer_name).unwrap())
         .collect();
     let layer_names: Vec<*const i8> = required_validation_layer_raw_names
         .iter()
-        .name(|layer_name| layer_name.as_ptr())
+        .map(|layer_name| layer_name.as_ptr())
         .collect(); 
 
     // fill out instance info
@@ -73,7 +75,7 @@ pub fn create_instance(
             0
         } as u32,
         pp_enabled_extension_names: extension_names.as_ptr(),
-        enabled_extension_count: exention_names.len() as u32,
+        enabled_extension_count: extension_names.len() as u32,
     };
 
     let instance: ash::Instance = unsafe {
@@ -120,10 +122,20 @@ pub fn pick_physical_device(
     };
 
     let result = physical_devices.iter().find(|physical_device| {
-        let is_suitable = is_physical_device_suitable()
+        let is_suitable = is_physical_device_suitable(
+            instance,
+            **physical_device,
+            surface_stuff,
+            required_device_extensions,
+        );
 
+        is_suitable
+    });
 
-    })
+    match result {
+        Some(p_physical_device) => *p_physical_device,
+        None => panic!("Failed to find a suitable GPU"),
+    }
 }
 
 pub fn is_physical_device_suitable(
@@ -132,6 +144,29 @@ pub fn is_physical_device_suitable(
     surface_stuff: &SurfaceStuff,
     required_device_extensions: &DeviceExtension,
 ) -> bool {
+
+    let device_features = unsafe {instance.get_physical_device_features(physical_device)};
+
+    let indices = find_queue_family(instance, physical_device, surface_stuff);
+
+    let is_queue_family_supported = indices.is_complete();
+
+    let is_device_extension_supported = 
+        check_device_extension_support(instance, physical_device, required_device_extensions);
+
+    let is_swapchain_supported = if is_device_extension_supported {
+        let swapchain_support = query_swapchain_support(physical_device, surface_stuff);
+        !swapchain_support.formats.is_empty() && !swapchain_support.present_modes.is_empty()
+    } else {
+        false
+    };
+
+    let is_support_sampler_anisotropy = device_features.sampler_anisotropy == 1;
+
+    return is_queue_family_supported
+        && is_device_extension_supported
+        && is_swapchain_supported
+        && is_support_sampler_anisotropy;
     
 }
 
@@ -142,7 +177,72 @@ pub fn create_logical_device(
     device_extensions: &DeviceExtension,
     surface_stuff: &SurfaceStuff,
 ) -> (ash::Device, QueueFamilyIndices) {
+    let indices = find_queue_family(instance, physical_device, surface_stuff);
 
+    use std::collections::HashSet;
+    let mut unique_queue_families = HashSet::new();
+    unique_queue_families.insert(indices.graphics_family.unwrap());
+    unique_queue_families.insert(indices.present_family.unwrap());
+
+    let queue_priorities = [1.0_f32];
+    let mut queue_create_infos = vec![];
+    for &queue_family in unique_queue_families.iter() {
+        let queue_create_info = vk::DeviceQueueCreateInfo {
+            s_type: vk::StructureType::DEVICE_QUEUE_CREATE_INFO,
+            p_next: ptr::null(),
+            flags: vk::DeviceQueueCreateFlags::empty(),
+            queue_family_index: queue_family,
+            p_queue_priorities: queue_priorities.as_ptr(),
+            queue_count: queue_priorities.len() as u32,
+        };
+        queue_create_infos.push(queue_create_info);
+    }
+
+    let physical_device_features = vk::PhysicalDeviceFeatures {
+        sampler_anisotropy: vk::TRUE,
+        ..Default::default()
+    };
+
+    let required_validation_layer_raw_names: Vec<CString> = validation
+        .required_validation_layers
+        .iter()
+        .map(|layer_name| CString::new(*layer_name).unwrap())
+        .collect();
+    let enable_layer_names: Vec<*const c_char> = required_validation_layer_raw_names
+        .iter()
+        .map(|layer_name| layer_name.as_ptr())
+        .collect();
+    
+    let enable_extension_names = device_extensions.get_extensions_raw_names();
+
+    let device_create_info = vk::DeviceCreateInfo {
+        s_type: vk::StructureType::DEVICE_CREATE_INFO,
+        p_next: ptr::null(),
+        flags: vk::DeviceCreateFlags::empty(),
+        queue_create_info_count: queue_create_infos.len() as u32,
+        p_queue_create_infos: queue_create_infos.as_ptr(),
+        enabled_layer_count: if validation.is_enable {
+            enable_layer_names.len()
+        } else {
+            0
+        } as u32,
+        pp_enabled_layer_names: if validation.is_enable {
+            enable_layer_names.as_ptr()
+        } else {
+            ptr::null()
+        },
+        enabled_extension_count: enable_extension_names.len() as u32,
+        pp_enabled_extension_names: enable_extension_names.as_ptr(),
+        p_enabled_features: &physical_device_features,
+    };
+
+    let device: ash::Device = unsafe {
+        instance
+            .create_device((physical_device, &device_create_info, None)
+            .expect("Failed to create logical device!")
+    };
+
+    (device, indices)
 }
 
 
@@ -163,7 +263,8 @@ pub fn check_device_extension_support(
 }
 
 pub fn query_swapchain_support(
-
+    physical_device: vk::PhysicalDevice,
+    surface_stuff: &SurfaceStuff
 ) -> SwapChainSupportDetail {
 
 }

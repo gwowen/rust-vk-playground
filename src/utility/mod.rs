@@ -5,3 +5,6 @@ pub mod window;
 pub mod debug;
 pub mod tools;
 pub mod structures;
+pub mod share;
+pub mod platforms;
+

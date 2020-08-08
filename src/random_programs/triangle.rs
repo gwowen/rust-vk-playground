@@ -1,5 +1,8 @@
 use vk_playground::{
     utility,
+    utility::constants::*,
+    utility::debug::*,
+    utility::share,
 };
 
 use ash::version::DeviceV1_0;
@@ -58,7 +61,18 @@ struct VulkanApp {
 impl VulkanApp {
     pub fn new(event_loop: &winit::event_loop::EventLoop<()>) -> VulkanApp {
         
-        let window = utility::window::init_window(); 
+        let window = utility::window::init_window(event_loop, WINDOW_TITLE, WINDOW_WIDTH, WINDOW_HEIGHT);
+
+        // init vulkan stuff
+        let entry = ash::Entry::new().unwrap();
+
+        let instance = share::CreateInstance
+        
+        VulkanApp {
+            window,
+            _entry: entry,
+
+        }
     }
 }
 
