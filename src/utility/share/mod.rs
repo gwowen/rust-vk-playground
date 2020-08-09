@@ -1,3 +1,5 @@
+pub mod v1;
+
 use ash::version::DeviceV1_0;
 use ash::version::EntryV1_0;
 use ash::version::InstanceV1_0;
