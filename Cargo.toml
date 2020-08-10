@@ -1,5 +1,5 @@
 [package]
-name = "vk-playground"
+name = "vk_playground"
 version = "0.1.0"
 authors = ["Gareth <gareth.w.owen@gmail.com>"]
 edition = "2018"
@@ -28,4 +28,7 @@ winapi = { version = "0.3.5", features = ["windef", "libloaderapi"] }
 
 [[bin]]
 name = "basic_window"
-path = "src/basic_window.rs"
+path = "src/random_programs/basic_window.rs"
+[[bin]]
+name = "triangle"
+path = "src/random_programs/triangle.rs"
