@@ -75,14 +75,16 @@ pub fn create_graphics_pipeline(
     device: &ash::Device,
     render_pass: vk::RenderPass,
     swapchain_extent: vk::Extent2D,
+    vert_path: &str,
+    frag_path: &str,
 ) -> (vk::Pipeline, vk::PipelineLayout) {
     let vert_shader_module = create_shader_module(
         device,
-        "shaders/vert.spv",
+        vert_path,
     );
     let frag_shader_module = create_shader_module(
         device,
-        "shaders/frag.spv",
+        frag_path,
     );
 
     let main_function_name = CString::new("main").unwrap(); // the beginning function name in shader code.
