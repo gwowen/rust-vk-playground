@@ -14,7 +14,7 @@ use winit::event_loop::{EventLoop, ControlFlow};
 use std::ptr;
 
 // constants
-const WINDOW_TITLE: &'static str = "Basic Window";
+const WINDOW_TITLE: &'static str = "Vulkan Triangle!";
 const WINDOW_WIDTH: u32 = 800;
 const WINDOW_HEIGHT: u32 = 600;
 const MAX_FRAMES_IN_FLIGHT: usize = 2;
@@ -339,19 +339,52 @@ impl VulkanApp {
                 sync_objects.inflight_fences.push(inflight_fence);
             }
         }
-
         sync_objects
     }
 }
 
 impl Drop for VulkanApp {
     fn drop(&mut self) {
+        unsafe {
+            for i in 0..MAX_FRAMES_IN_FLIGHT {
+                self.device
+                    .destroy_semaphore(self.image_available_semaphores[i], None);
+                self.device
+                    .destroy_semaphore(self.render_finished_sempahores[i], None);
+                self.device.destroy_fence(self.in_flight_fences[i], None);
+            }
 
+            self.device.destroy_command_pool(self.command_pool, None);
+
+            for &framebuffer in self.swapchain_framebuffers.iter() {
+                self.device.destroy_framebuffer(framebuffer, None);
+            }
+
+            self.device.destroy_pipeline(self.graphics_pipeline, None);
+            self.device
+                .destroy_pipeline_layout(self.pipeline_layout, None);
+            self.device.destroy_render_pass(self.render_pass, None);
+
+            for &imageview in self.swapchain_imageviews.iter() {
+                self.device.destroy_image_view(imageview, None);
+            }
+
+            self.swapchain_loader
+                .destroy_swapchain(self.swapchain, None);
+            self.device.destroy_device(None);
+            self.surface_loader.destroy_surface(self.surface, None);
+
+            if VALIDATION.is_enable {
+                self.debug_utils_loader
+                    .destroy_debug_utils_messenger(self.debug_messenger, None);
+            }
+            self.instance.destroy_instance(None);
+        }
     }
 }
 impl VulkanApp {
 
-    pub fn main_loop(event_loop: EventLoop<()>) {
+    pub fn main_loop(mut self, event_loop: EventLoop<()>) {
 
         event_loop.run(move |event, _, control_flow| {
 
@@ -384,6 +417,18 @@ impl VulkanApp {
                         | _ => {},
                     }
                 },
+                | Event::MainEventsCleared => {
+                    self.window.request_redraw();
+                },
+                | Event::RedrawRequested(_window_id) => {
+                    self.draw_frame();
+                },
+                | Event::LoopDestroyed => {
+                    unsafe {
+                        self.device.device_wait_idle()
+                            .expect("Failed to wait device idle!")
+                    };
+                },
                 _ => (),
             }
 
@@ -397,5 +442,5 @@ fn main() {
     let event_loop = EventLoop::new();    
     let vulkan_app= VulkanApp::new(&event_loop);
 
-    VulkanApp::main_loop(event_loop);
+    vulkan_app.main_loop(event_loop);
 }
