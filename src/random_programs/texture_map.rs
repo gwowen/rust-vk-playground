@@ -18,6 +18,11 @@ use std::ffi::CString;
 use std::path::Path;
 use std::ptr;
 
+// constants
+const WINDOW_TITLE: &'static str = "Texture Mapping!";
+const WINDOW_WIDTH: u32 = 800;
+const WINDOW_HEIGHT: u32 = 600;
+
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
 pub struct VertexV2 {
@@ -84,10 +89,6 @@ pub const RECT_TEX_COORD_VERTICES_DATA: [VertexV2; 4] = [
     },
 ];
 
-// constants
-const WINDOW_TITLE: &'static str = "Texture Mapping!";
-const WINDOW_WIDTH: u32 = 800;
-const WINDOW_HEIGHT: u32 = 600;
 
 struct VulkanAppTextureMapping {
     window: winit::window::Window,
@@ -133,7 +134,7 @@ struct VulkanAppTextureMapping {
     uniform_buffers: Vec<vk::Buffer>,
     uniform_buffers_memory: Vec<vk::DeviceMemory>,
 
-    desciptor_pool: vk::DescriptorPool,
+    descriptor_pool: vk::DescriptorPool,
     descriptor_sets: Vec<vk::DescriptorSet>,
 
     command_pool: vk::CommandPool,
@@ -161,7 +162,7 @@ impl VulkanAppTextureMapping {
         );
         let surface_stuff =
         share::create_surface(&entry, &instance, &window, WINDOW_WIDTH, WINDOW_HEIGHT);
-        let (debug_utils_loader, debug_merssager) =
+        let (debug_utils_loader, debug_messenger) =
             setup_debug_utils(VALIDATION.is_enable, &entry, &instance);
         let physical_device =
             share::pick_physical_device(&instance, &surface_stuff, &DEVICE_EXTENSIONS);
@@ -222,6 +223,13 @@ impl VulkanAppTextureMapping {
             graphics_queue,
             &RECT_TEX_COORD_VERTICES_DATA,
         );
+        let (index_buffer, index_buffer_memory) = share::v1::create_index_buffer(
+            &device,
+            &physical_device_memory_properties,
+            command_pool,
+            graphics_queue,
+            &RECT_INDICES_DATA,
+        );
         let (uniform_buffers, uniform_buffers_memory) = share::v1::create_uniform_buffers(
             &device,
             &physical_device_memory_properties,
@@ -238,7 +246,7 @@ impl VulkanAppTextureMapping {
             texture_sampler,
             swapchain_stuff.swapchain_images.len(),
         );
-        let command_buffer = VulkanAppTextureMapping::create_command_buffers(
+        let command_buffers = VulkanAppTextureMapping::create_command_buffers(
             &device,
             command_pool,
             graphics_pipeline,
@@ -870,7 +878,7 @@ impl Drop for VulkanAppTextureMapping {
 
             if VALIDATION.is_enable {
                 self.debug_utils_loader
-                    .destroy_debug_utils_messenger(self.debug_merssager, None);
+                    .destroy_debug_utils_messenger(self.debug_messenger, None);
             }
             self.instance.destroy_instance(None);
         }
