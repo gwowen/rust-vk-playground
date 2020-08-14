@@ -32,3 +32,6 @@ path = "src/random_programs/basic_window.rs"
 [[bin]]
 name = "triangle"
 path = "src/random_programs/triangle.rs"
+[[bin]]
+name = "texture_map"
+path = "src/random_programs/texture_map.rs"
