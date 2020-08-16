@@ -5,6 +5,9 @@ use std::ffi::CStr;
 use std::os::raw::c_void;
 use std::ptr;
 
+// somewhat unsurpisingly a bunch of debug functions
+// setup for the validation layers and callback functions
+
 unsafe extern "system" fn vulkan_debug_utils_callback(
     message_severity: vk::DebugUtilsMessageSeverityFlagsEXT,
     message_type: vk::DebugUtilsMessageTypeFlagsEXT,

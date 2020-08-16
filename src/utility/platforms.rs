@@ -3,6 +3,10 @@ use ash::vk;
 
 #[cfg(all(unix, not(target_os = "android"), not(target_os = "macos")))]
 use ash::extensions::khr::XlibSurface;
+// this seems to fail to compile on Linux...
+// guess it's not surprising but still would
+// like to leave it uncommented and let the compiler
+// figure it out...
 // #[cfg(target_os = "windows")]
 // use ash::extensions::khr::Win32Surface;
 

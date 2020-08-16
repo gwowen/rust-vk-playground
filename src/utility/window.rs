@@ -95,7 +95,7 @@ impl ProgramProc {
                 },
                 | Event::LoopDestroyed => {
                     vulkan_app.wait_device_idle();
-                }
+                },
                 _ => (),
             }
         })

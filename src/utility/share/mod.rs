@@ -16,6 +16,8 @@ use crate::utility::debug;
 use crate::utility::platforms;
 use crate::utility::structures::*;
 
+// functions for creating instances and debug buffers
+// and other things. Another prime candidate for refactoring
 
 pub fn create_instance(
     entry: &ash::Entry,

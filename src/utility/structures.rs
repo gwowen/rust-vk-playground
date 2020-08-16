@@ -3,6 +3,9 @@ use cgmath::Matrix4;
 
 use memoffset::offset_of;
 
+// structures to help with various Vulkan concepts
+// such as queues, swapchains, etc.
+
 pub struct DeviceExtension {
     pub names: [&'static str; 1],
 }
