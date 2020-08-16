@@ -9,6 +9,9 @@ use std::ptr;
 
 use super::*;
 
+// creating render passes, descriptor pools, command buffers
+// and so on. A prime candidate for refactoring in future.
+
 pub fn create_render_pass(device: &ash::Device, surface_format: vk::Format) -> vk::RenderPass {
     let color_attachment = vk::AttachmentDescription {
         format: surface_format,
