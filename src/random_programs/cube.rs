@@ -230,7 +230,7 @@ pub const RECT_TEX_COORD_VERTICES_DATA: [VertexV3; 32] = [
 ];
 
 
-struct VulkanAppTextureMapping {
+struct VulkanAppCube {
     window: winit::window::Window,
 
     _entry: ash::Entry,
@@ -260,6 +260,10 @@ struct VulkanAppTextureMapping {
     pipeline_layout: vk::PipelineLayout,
     graphics_pipeline: vk::Pipeline,
 
+    depth_image: vk::Image,
+    depth_image_view: vk::ImageView,
+    depth_image_memory: vk::DeviceMemory,
+
     texture_image: vk::Image,
     texture_image_view: vk::ImageView,
     texture_sampler: vk::Sampler,
@@ -288,8 +292,8 @@ struct VulkanAppTextureMapping {
     is_framebuffer_resized: bool,
 }
 
-impl VulkanAppTextureMapping {
-    pub fn new(event_loop: &winit::event_loop::EventLoop<()>) -> VulkanAppTextureMapping {
+impl VulkanAppCube {
+    pub fn new(event_loop: &winit::event_loop::EventLoop<()>) -> VulkanAppCube {
         let window =
             utility::window::init_window(&event_loop, WINDOW_TITLE, WINDOW_WIDTH, WINDOW_HEIGHT);
         
@@ -333,8 +337,8 @@ impl VulkanAppTextureMapping {
             &swapchain_stuff.swapchain_images,
         );
         let render_pass = share::v1::create_render_pass(&device, swapchain_stuff.swapchain_format);
-        let ubo_layout = VulkanAppTextureMapping::create_descriptor_set_layout(&device);
-        let (graphics_pipeline, pipeline_layout) = VulkanAppTextureMapping::create_graphics_pipeline(
+        let ubo_layout = VulkanAppCube::create_descriptor_set_layout(&device);
+        let (graphics_pipeline, pipeline_layout) = VulkanAppCube::create_graphics_pipeline(
             &device,
             render_pass,
             swapchain_stuff.swapchain_extent,
@@ -347,6 +351,16 @@ impl VulkanAppTextureMapping {
             swapchain_stuff.swapchain_extent
         );
         let command_pool = share::v1::create_command_pool(&device, &queue_family);
+        // let (depth_image, depth_image_view, depth_image_memory) = 
+        //     share::v1::create_depth_resources(
+        //         &instance,
+        //         &device,
+        //         &physical_device,
+        //         command_pool,
+        //         graphics_queue,
+        //         swapchain_stuff.swapchain_extent,
+        //         &physical_device_memory_properties,
+        //     );
         let (texture_image, texture_image_memory) = share::v1::create_texture_image(
             &device,
             command_pool,
@@ -376,8 +390,8 @@ impl VulkanAppTextureMapping {
             swapchain_stuff.swapchain_images.len()
         );
         let descriptor_pool =
-            VulkanAppTextureMapping::create_descriptor_pool(&device, swapchain_stuff.swapchain_images.len());
-        let descriptor_sets = VulkanAppTextureMapping::create_descriptor_sets(
+            VulkanAppCube::create_descriptor_pool(&device, swapchain_stuff.swapchain_images.len());
+        let descriptor_sets = VulkanAppCube::create_descriptor_sets(
             &device,
             descriptor_pool,
             ubo_layout,
@@ -386,7 +400,7 @@ impl VulkanAppTextureMapping {
             texture_sampler,
             swapchain_stuff.swapchain_images.len(),
         );
-        let command_buffers = VulkanAppTextureMapping::create_command_buffers(
+        let command_buffers = VulkanAppCube::create_command_buffers(
             &device,
             command_pool,
             graphics_pipeline,
@@ -401,7 +415,7 @@ impl VulkanAppTextureMapping {
         let sync_objects = share::v1::create_sync_objects(&device, MAX_FRAMES_IN_FLIGHT);
         
 
-        VulkanAppTextureMapping {
+        VulkanAppCube {
             window,
 
             // vulkan stuff
@@ -431,6 +445,10 @@ impl VulkanAppTextureMapping {
             ubo_layout,
             render_pass,
             graphics_pipeline,
+
+            depth_image,
+            depth_image_view,
+            depth_image_memory,
 
             texture_image,
             texture_image_view,
@@ -477,6 +495,35 @@ impl VulkanAppTextureMapping {
 
             is_framebuffer_resized: false,
         }
+    }
+
+    fn create_depth_resources(
+        instance: &ash::Instance,
+        device: &ash::Device,
+        physical_device: vk::PhysicalDevice,
+        _command_pool: vk::CommandPool,
+        _submit_queue: vk::Queue,
+        swapchain_extent: vk::Extent2D,
+        device_memory_properties: &vk::PhysicalDeviceMemoryProperties,
+    ) -> (vk::Image, vk::ImageView, vk::DeviceMemory) {
+
+    }
+
+    fn find_depth_format(
+        instance: &ash::Instance,
+        physical_device: vk::PhysicalDevice,
+    ) -> vk::Format {
+
+    }
+
+    fn find_supported_format(
+        instance: &ash::Instance,
+        physical_device: vk::PhysicalDevice,
+        candidate_format: &[vk::Format],
+        tiling: vk::ImageTiling,
+        features: vk::FormatFeatureFlags,
+    ) -> vk::Format {
+        
     }
 
     fn create_descriptor_pool (
@@ -627,7 +674,7 @@ impl VulkanAppTextureMapping {
     }
 }
 
-impl VulkanAppTextureMapping {
+impl VulkanAppCube {
     fn create_command_buffers(
         device: &ash::Device,
         command_pool: vk::CommandPool,
@@ -795,8 +842,8 @@ impl VulkanAppTextureMapping {
             },
         ];
 
-        let binding_description = VertexV2::get_binding_description();
-        let attribute_description = VertexV2::get_attribute_descriptions();
+        let binding_description = VertexV3::get_binding_description();
+        let attribute_description = VertexV3::get_attribute_descriptions();
 
         let vertex_input_state_create_info = vk::PipelineVertexInputStateCreateInfo {
             s_type: vk::StructureType::PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
@@ -973,7 +1020,7 @@ impl VulkanAppTextureMapping {
     }
 }
 
-impl Drop for VulkanAppTextureMapping {
+impl Drop for VulkanAppCube {
     fn drop(&mut self) {
         unsafe {
             for i in 0..MAX_FRAMES_IN_FLIGHT {
@@ -1025,7 +1072,7 @@ impl Drop for VulkanAppTextureMapping {
     }
 }
 
-impl VulkanApp for VulkanAppTextureMapping {
+impl VulkanApp for VulkanAppCube {
     fn draw_frame(&mut self, delta_time: f32) {
         let wait_fences = [self.in_flight_fences[self.current_frame]];
 
@@ -1156,7 +1203,7 @@ impl VulkanApp for VulkanAppTextureMapping {
             &self.swapchain_images,
         );
         self.render_pass = share::v1::create_render_pass(&self.device, self.swapchain_format);
-        let (graphics_pipeline, pipeline_layout) = VulkanAppTextureMapping::create_graphics_pipeline(
+        let (graphics_pipeline, pipeline_layout) = VulkanAppCube::create_graphics_pipeline(
             &self.device,
             self.render_pass,
             swapchain_stuff.swapchain_extent,
@@ -1171,7 +1218,7 @@ impl VulkanApp for VulkanAppTextureMapping {
             &self.swapchain_imageviews,
             self.swapchain_extent,
         );
-        self.command_buffers = VulkanAppTextureMapping::create_command_buffers(
+        self.command_buffers = VulkanAppCube::create_command_buffers(
             &self.device,
             self.command_pool,
             self.graphics_pipeline,
@@ -1224,7 +1271,7 @@ impl VulkanApp for VulkanAppTextureMapping {
 fn main() {
 
     let program_proc = ProgramProc::new();   
-    let vulkan_app = VulkanAppTextureMapping::new(&program_proc.event_loop);
+    let vulkan_app = VulkanAppCube::new(&program_proc.event_loop);
 
     program_proc.main_loop(vulkan_app);
 }
