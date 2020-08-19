@@ -19,7 +19,7 @@ use std::path::Path;
 use std::ptr;
 
 // constants
-const WINDOW_TITLE: &'static str = "Texture Mapping!";
+const WINDOW_TITLE: &'static str = "Cube";
 const WINDOW_WIDTH: u32 = 800;
 const WINDOW_HEIGHT: u32 = 600;
 
