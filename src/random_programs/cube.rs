@@ -25,17 +25,17 @@ const WINDOW_HEIGHT: u32 = 600;
 
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
-pub struct VertexV2 {
-    pub pos: [f32; 2],
+pub struct VertexV3 {
+    pub pos: [f32; 3],
     pub color: [f32; 3],
     pub tex_coord: [f32; 2],
 }
 
-impl VertexV2 {
+impl VertexV3 {
     pub fn get_binding_description() -> [vk::VertexInputBindingDescription; 1] {
         [vk::VertexInputBindingDescription {
             binding: 0,
-            stride: std::mem::size_of::<VertexV2>() as u32,
+            stride: std::mem::size_of::<Self>() as u32,
             input_rate: vk::VertexInputRate::VERTEX,
         }]
     }
@@ -46,44 +46,184 @@ impl VertexV2 {
                 binding: 0,
                 location: 0, 
                 format: vk::Format::R32G32_SFLOAT,
-                offset: offset_of!(VertexV2, pos) as u32,
+                offset: offset_of!(Self, pos) as u32,
             },
 
             vk::VertexInputAttributeDescription {
                 binding: 0,
                 location: 1, 
                 format: vk::Format::R32G32B32_SFLOAT,
-                offset: offset_of!(VertexV2, color) as u32,
+                offset: offset_of!(Self, color) as u32,
             },
 
             vk::VertexInputAttributeDescription {
                 binding: 0,
                 location: 2, 
                 format: vk::Format::R32G32B32_SFLOAT,
-                offset: offset_of!(VertexV2, tex_coord) as u32,
+                offset: offset_of!(Self, tex_coord) as u32,
             },
         ]
     }
 }
 
-pub const RECT_TEX_COORD_VERTICES_DATA: [VertexV2; 4] = [
-    VertexV2 {
-        pos: [-0.75, -0.75],
+pub const RECT_TEX_COORD_VERTICES_DATA: [VertexV3; 32] = [
+    VertexV3 {
+        pos: [-0.75, -0.75, 0.0],
         color: [1.0, 0.0, 0.0],
         tex_coord: [1.0, 0.0],
     },
-    VertexV2 {
-        pos: [0.75, -0.75],
+    VertexV3 {
+        pos: [0.75, -0.75, 0.0],
         color: [0.0, 1.0, 0.0],
         tex_coord: [0.0, 0.0],
     },
-    VertexV2 {
-        pos: [0.75, 0.75],
+    VertexV3 {
+        pos: [0.75, 0.75, 0.0],
         color: [0.0, 0.0, 1.0],
         tex_coord: [0.0, 1.0],
     },
-    VertexV2 {
-        pos: [-0.75, 0.75],
+    VertexV3 {
+        pos: [-0.75, 0.75, 0.0],
+        color: [1.0, 1.0, 1.0],
+        tex_coord: [1.0, 1.0],
+    },
+    VertexV3 {
+        pos: [-0.75, -0.75, 0.0],
+        color: [1.0, 0.0, 0.0],
+        tex_coord: [1.0, 0.0],
+    },
+    VertexV3 {
+        pos: [0.75, -0.75, 0.0],
+        color: [0.0, 1.0, 0.0],
+        tex_coord: [0.0, 0.0],
+    },
+    VertexV3 {
+        pos: [0.75, 0.75, 0.0],
+        color: [0.0, 0.0, 1.0],
+        tex_coord: [0.0, 1.0],
+    },
+    VertexV3 {
+        pos: [-0.75, 0.75, 0.0],
+        color: [1.0, 1.0, 1.0],
+        tex_coord: [1.0, 1.0],
+    },
+    VertexV3 {
+        pos: [-0.75, -0.75, 0.0],
+        color: [1.0, 0.0, 0.0],
+        tex_coord: [1.0, 0.0],
+    },
+    VertexV3 {
+        pos: [0.75, -0.75, 0.0],
+        color: [0.0, 1.0, 0.0],
+        tex_coord: [0.0, 0.0],
+    },
+    VertexV3 {
+        pos: [0.75, 0.75, 0.0],
+        color: [0.0, 0.0, 1.0],
+        tex_coord: [0.0, 1.0],
+    },
+    VertexV3 {
+        pos: [-0.75, 0.75, 0.0],
+        color: [1.0, 1.0, 1.0],
+        tex_coord: [1.0, 1.0],
+    },
+    VertexV3 {
+        pos: [-0.75, -0.75, 0.0],
+        color: [1.0, 0.0, 0.0],
+        tex_coord: [1.0, 0.0],
+    },
+    VertexV3 {
+        pos: [0.75, -0.75, 0.0],
+        color: [0.0, 1.0, 0.0],
+        tex_coord: [0.0, 0.0],
+    },
+    VertexV3 {
+        pos: [0.75, 0.75, 0.0],
+        color: [0.0, 0.0, 1.0],
+        tex_coord: [0.0, 1.0],
+    },
+    VertexV3 {
+        pos: [-0.75, 0.75, 0.0],
+        color: [1.0, 1.0, 1.0],
+        tex_coord: [1.0, 1.0],
+    },
+    VertexV3 {
+        pos: [-0.75, -0.75, 0.0],
+        color: [1.0, 0.0, 0.0],
+        tex_coord: [1.0, 0.0],
+    },
+    VertexV3 {
+        pos: [0.75, -0.75, 0.0],
+        color: [0.0, 1.0, 0.0],
+        tex_coord: [0.0, 0.0],
+    },
+    VertexV3 {
+        pos: [0.75, 0.75, 0.0],
+        color: [0.0, 0.0, 1.0],
+        tex_coord: [0.0, 1.0],
+    },
+    VertexV3 {
+        pos: [-0.75, 0.75, 0.0],
+        color: [1.0, 1.0, 1.0],
+        tex_coord: [1.0, 1.0],
+    },
+    VertexV3 {
+        pos: [-0.75, -0.75, 0.0],
+        color: [1.0, 0.0, 0.0],
+        tex_coord: [1.0, 0.0],
+    },
+    VertexV3 {
+        pos: [0.75, -0.75, 0.0],
+        color: [0.0, 1.0, 0.0],
+        tex_coord: [0.0, 0.0],
+    },
+    VertexV3 {
+        pos: [0.75, 0.75, 0.0],
+        color: [0.0, 0.0, 1.0],
+        tex_coord: [0.0, 1.0],
+    },
+    VertexV3 {
+        pos: [-0.75, 0.75, 0.0],
+        color: [1.0, 1.0, 1.0],
+        tex_coord: [1.0, 1.0],
+    },
+    VertexV3 {
+        pos: [-0.75, -0.75, 0.0],
+        color: [1.0, 0.0, 0.0],
+        tex_coord: [1.0, 0.0],
+    },
+    VertexV3 {
+        pos: [0.75, -0.75, 0.0],
+        color: [0.0, 1.0, 0.0],
+        tex_coord: [0.0, 0.0],
+    },
+    VertexV3 {
+        pos: [0.75, 0.75, 0.0],
+        color: [0.0, 0.0, 1.0],
+        tex_coord: [0.0, 1.0],
+    },
+    VertexV3 {
+        pos: [-0.75, 0.75, 0.0],
+        color: [1.0, 1.0, 1.0],
+        tex_coord: [1.0, 1.0],
+    },
+    VertexV3 {
+        pos: [-0.75, -0.75, 0.0],
+        color: [1.0, 0.0, 0.0],
+        tex_coord: [1.0, 0.0],
+    },
+    VertexV3 {
+        pos: [0.75, -0.75, 0.0],
+        color: [0.0, 1.0, 0.0],
+        tex_coord: [0.0, 0.0],
+    },
+    VertexV3 {
+        pos: [0.75, 0.75, 0.0],
+        color: [0.0, 0.0, 1.0],
+        tex_coord: [0.0, 1.0],
+    },
+    VertexV3 {
+        pos: [-0.75, 0.75, 0.0],
         color: [1.0, 1.0, 1.0],
         tex_coord: [1.0, 1.0],
     },
