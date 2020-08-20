@@ -506,24 +506,70 @@ impl VulkanAppCube {
         swapchain_extent: vk::Extent2D,
         device_memory_properties: &vk::PhysicalDeviceMemoryProperties,
     ) -> (vk::Image, vk::ImageView, vk::DeviceMemory) {
+        let depth_format = VulkanAppCube::find_depth_format(instance, physical_device);
+        let (depth_image, depth_image_memory) = share::v1::create_image(
+            device,
+            swapchain_extent.width,
+            swapchain_extent.height,
+            1,
+            vk::SampleCountFlags::TYPE_1,
+            depth_format,
+            vk::ImageTiling::OPTIMAL,
+            vk::ImageUsageFlags::DEPTH_STENCIL_ATTACHMENT,
+            vk::MemoryPropertyFlags::DEVICE_LOCAL,
+            device_memory_properties,
+        );
 
+        let depth_image_view = share::v1::create_image_view(
+            device,
+            depth_image,
+            depth_format,
+            vk::ImageAspectFlags::DEPTH,
+            1
+        );
+
+        (depth_image, depth_image_view, depth_image_memory)
     }
 
     fn find_depth_format(
         instance: &ash::Instance,
         physical_device: vk::PhysicalDevice,
     ) -> vk::Format {
-
+        VulkanAppCube::find_supported_format(
+            instance,
+            physical_device,
+            &[
+                vk::Format::D32_SFLOAT,
+                vk::Format::D32_SFLOAT_S8_UINT,
+                vk::Format::D24_UNORM_S8_UINT,
+            ],
+            vk::ImageTiling::OPTIMAL,
+            vk::FormatFeatureFlags::DEPTH_STENCIL_ATTACHMENT,
+        )
     }
 
     fn find_supported_format(
         instance: &ash::Instance,
         physical_device: vk::PhysicalDevice,
-        candidate_format: &[vk::Format],
+        candidate_formats: &[vk::Format],
         tiling: vk::ImageTiling,
         features: vk::FormatFeatureFlags,
     ) -> vk::Format {
-        
+        for &format in candidate_formats.iter() {
+            let format_properties = 
+                unsafe { instance.get_physical_device_format_properties(physical_device, format) };
+            if tiling == vk::ImageTiling::LINEAR 
+                && format_properties.linear_tiling_features.contains(features)
+            {
+                return format.clone();
+            } else if tiling == vk::ImageTiling::OPTIMAL
+                && format_properties.optimal_tiling_features.contains(features)
+            {
+                return format.clone();
+            }
+        }
+
+        panic!("Failed to find supported format!")
     }
 
     fn create_descriptor_pool (
