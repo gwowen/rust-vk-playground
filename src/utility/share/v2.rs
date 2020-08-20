@@ -26,14 +26,14 @@ pub fn create_descriptor_pool(
         p_next: ptr::null(),
         flags: vk::DescriptorPoolCreateFlags::empty(),
         max_sets: swapchain_images_size as u32,
-        pool_size_counts: pool_sizes.len() as u32,
-        p_pool_size: pool_sizes.as_ptr(),
+        pool_size_count: pool_sizes.len() as u32,
+        p_pool_sizes: pool_sizes.as_ptr(),
     };
 
     unsafe {
         device
-            .create_descriptor_pool(&descriptor_pool_create, None)
-            .expect("Failed to create descriptor pool");
+            .create_descriptor_pool(&descriptor_pool_create_info, None)
+            .expect("Failed to create descriptor pool!")
     }
 }
 
@@ -41,7 +41,7 @@ pub fn create_descriptor_sets(
     device: &ash::Device,
     descriptor_pool: vk::DescriptorPool,
     descriptor_set_layout: vk::DescriptorSetLayout,
-    uniforms_buffers: &Vec<vk::Buffer>,
+    uniform_buffers: &Vec<vk::Buffer>,
     texture_image_view: vk::ImageView,
     texture_sampler: vk::Sampler,
     swapchain_images_size: usize,
@@ -62,15 +62,15 @@ pub fn create_descriptor_sets(
 
     let descriptor_sets = unsafe {
         device
-            .allocate_descriptor_sets(&descriptor_sets_allocate_info)
+            .allocate_descriptor_sets(&descriptor_set_allocate_info)
             .expect("Failed to allocate descriptor sets")
     };
 
     for (i, &descriptor_set) in descriptor_sets.iter().enumerate() {
         let descriptor_buffer_infos = [vk::DescriptorBufferInfo {
-            buffer: uniforms_buffers[i],
+            buffer: uniform_buffers[i],
             offset: 0,
-            range: ::std::mem::size_of()::<UniformBufferObject>() as u64,
+            range: ::std::mem::size_of::<UniformBufferObject>() as u64,
         }];
 
         let descriptor_image_infos = [vk::DescriptorImageInfo {
@@ -141,13 +141,13 @@ pub fn create_descriptor_set_layout(device: &ash::Device) -> vk::DescriptorSetLa
         s_type: vk::StructureType::DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
         p_next: ptr::null(),
         flags: vk::DescriptorSetLayoutCreateFlags::empty(),
-        binding_count_: ubo_layout_bindings.len() as u32,
+        binding_count: ubo_layout_bindings.len() as u32,
         p_bindings: ubo_layout_bindings.as_ptr(),
     };
 
     unsafe {
         device
-            .create_descriptor_set_layout((&ubo_layout_create_info, None)
+            .create_descriptor_set_layout(&ubo_layout_create_info, None)
             .expect("Failed to create descriptor set layout")
     }
 }
