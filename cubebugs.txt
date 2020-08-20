@@ -1,0 +1,50 @@
+gaz@mothra:~/Desktop/scratch/rust/rust-vk-playground$ cargo run --bin cube
+warning: unused import: `std::thread`
+ --> src/utility/fps_limiter.rs:1:5
+  |
+1 | use std::thread;
+  |     ^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default
+
+warning: unused import: `std::time::Duration`
+ --> src/utility/fps_limiter.rs:2:5
+  |
+2 | use std::time::Duration;
+  |     ^^^^^^^^^^^^^^^^^^^
+
+warning: 2 warnings emitted
+
+warning: associated function is never used: `create_render_pass`
+   --> src/random_programs/cube.rs:588:8
+    |
+588 |     fn create_render_pass(
+    |        ^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` on by default
+
+warning: 1 warning emitted
+
+    Finished dev [unoptimized + debuginfo] target(s) in 0.11s
+     Running `target/debug/cube`
+[Debug][Error][Validation]"Validation Error: [ VUID_Undefined ] Object 0: handle = 0x5613883803c0, type = VK_OBJECT_TYPE_INSTANCE; | MessageID = 0x79de34d4 | Invalid VkImageView Object 0x1c000000001c."
+[Debug][Error][Validation]"Validation Error: [ VUID-VkFramebufferCreateInfo-attachmentCount-00876 ] Object 0: handle = 0x4c000000004c, type = VK_OBJECT_TYPE_RENDER_PASS; | MessageID = 0xd452b83b | vkCreateFramebuffer(): VkFramebufferCreateInfo attachmentCount of 2 does not match attachmentCount of 1 of VkRenderPass 0x4c000000004c[] being used to create Framebuffer. The Vulkan spec states: attachmentCount must be equal to the attachment count specified in renderPass (https://vulkan.lunarg.com/doc/view/1.2.148.0/linux/1.2-extensions/vkspec.html#VUID-VkFramebufferCreateInfo-attachmentCount-00876)"
+[Debug][Error][Validation]"Validation Error: [ VUID_Undefined ] Object 0: handle = 0x5613883803c0, type = VK_OBJECT_TYPE_INSTANCE; | MessageID = 0x79de34d4 | Invalid VkImageView Object 0x1c000000001c."
+[Debug][Error][Validation]"Validation Error: [ VUID-VkFramebufferCreateInfo-attachmentCount-00876 ] Object 0: handle = 0x4c000000004c, type = VK_OBJECT_TYPE_RENDER_PASS; | MessageID = 0xd452b83b | vkCreateFramebuffer(): VkFramebufferCreateInfo attachmentCount of 2 does not match attachmentCount of 1 of VkRenderPass 0x4c000000004c[] being used to create Framebuffer. The Vulkan spec states: attachmentCount must be equal to the attachment count specified in renderPass (https://vulkan.lunarg.com/doc/view/1.2.148.0/linux/1.2-extensions/vkspec.html#VUID-VkFramebufferCreateInfo-attachmentCount-00876)"
+[Debug][Error][Validation]"Validation Error: [ VUID_Undefined ] Object 0: handle = 0x5613883803c0, type = VK_OBJECT_TYPE_INSTANCE; | MessageID = 0x79de34d4 | Invalid VkImageView Object 0x1c000000001c."
+[Debug][Error][Validation]"Validation Error: [ VUID-VkFramebufferCreateInfo-attachmentCount-00876 ] Object 0: handle = 0x4c000000004c, type = VK_OBJECT_TYPE_RENDER_PASS; | MessageID = 0xd452b83b | vkCreateFramebuffer(): VkFramebufferCreateInfo attachmentCount of 2 does not match attachmentCount of 1 of VkRenderPass 0x4c000000004c[] being used to create Framebuffer. The Vulkan spec states: attachmentCount must be equal to the attachment count specified in renderPass (https://vulkan.lunarg.com/doc/view/1.2.148.0/linux/1.2-extensions/vkspec.html#VUID-VkFramebufferCreateInfo-attachmentCount-00876)"
+[Debug][Error][Validation]"Validation Error: [ VUID_Undefined ] Object 0: handle = 0x5613883803c0, type = VK_OBJECT_TYPE_INSTANCE; | MessageID = 0x79de34d4 | Invalid VkImageView Object 0x1c000000001c."
+[Debug][Error][Validation]"Validation Error: [ VUID-VkFramebufferCreateInfo-attachmentCount-00876 ] Object 0: handle = 0x4c000000004c, type = VK_OBJECT_TYPE_RENDER_PASS; | MessageID = 0xd452b83b | vkCreateFramebuffer(): VkFramebufferCreateInfo attachmentCount of 2 does not match attachmentCount of 1 of VkRenderPass 0x4c000000004c[] being used to create Framebuffer. The Vulkan spec states: attachmentCount must be equal to the attachment count specified in renderPass (https://vulkan.lunarg.com/doc/view/1.2.148.0/linux/1.2-extensions/vkspec.html#VUID-VkFramebufferCreateInfo-attachmentCount-00876)"
+[Debug][Error][Validation]"Validation Error: [ VUID_Undefined ] Object 0: handle = 0x5613883803c0, type = VK_OBJECT_TYPE_INSTANCE; | MessageID = 0x79de34d4 | Invalid VkImageView Object 0x1c000000001c."
+[Debug][Error][Validation]"Validation Error: [ VUID-VkFramebufferCreateInfo-attachmentCount-00876 ] Object 0: handle = 0x4c000000004c, type = VK_OBJECT_TYPE_RENDER_PASS; | MessageID = 0xd452b83b | vkCreateFramebuffer(): VkFramebufferCreateInfo attachmentCount of 2 does not match attachmentCount of 1 of VkRenderPass 0x4c000000004c[] being used to create Framebuffer. The Vulkan spec states: attachmentCount must be equal to the attachment count specified in renderPass (https://vulkan.lunarg.com/doc/view/1.2.148.0/linux/1.2-extensions/vkspec.html#VUID-VkFramebufferCreateInfo-attachmentCount-00876)"
+[Debug][Error][Validation]"Validation Error: [ UNASSIGNED-CoreValidation-DrawState-InvalidRenderpass ] Object 0: handle = 0x561388a66b40, type = VK_OBJECT_TYPE_COMMAND_BUFFER; | MessageID = 0xa1662b9 | You cannot start a render pass using a framebuffer with a different number of attachments."
+[Debug][Error][Validation]"Validation Error: [ UNASSIGNED-CoreValidation-DrawState-InvalidRenderpass ] Object 0: handle = 0x561388a62310, type = VK_OBJECT_TYPE_COMMAND_BUFFER; | MessageID = 0xa1662b9 | You cannot start a render pass using a framebuffer with a different number of attachments."
+[Debug][Error][Validation]"Validation Error: [ UNASSIGNED-CoreValidation-DrawState-InvalidRenderpass ] Object 0: handle = 0x561388a71400, type = VK_OBJECT_TYPE_COMMAND_BUFFER; | MessageID = 0xa1662b9 | You cannot start a render pass using a framebuffer with a different number of attachments."
+[Debug][Error][Validation]"Validation Error: [ UNASSIGNED-CoreValidation-DrawState-InvalidRenderpass ] Object 0: handle = 0x561388a5c120, type = VK_OBJECT_TYPE_COMMAND_BUFFER; | MessageID = 0xa1662b9 | You cannot start a render pass using a framebuffer with a different number of attachments."
+[Debug][Error][Validation]"Validation Error: [ UNASSIGNED-CoreValidation-DrawState-InvalidRenderpass ] Object 0: handle = 0x561388a77910, type = VK_OBJECT_TYPE_COMMAND_BUFFER; | MessageID = 0xa1662b9 | You cannot start a render pass using a framebuffer with a different number of attachments."
+[Debug][Error][Validation]"Validation Error: [ VUID-vkDestroyImageView-imageView-parameter ] Object 0: handle = 0x5613883803c0, type = VK_OBJECT_TYPE_INSTANCE; | MessageID = 0xe0208096 | Invalid VkImageView Object 0x1c000000001c. The Vulkan spec states: If imageView is not VK_NULL_HANDLE, imageView must be a valid VkImageView handle (https://vulkan.lunarg.com/doc/view/1.2.148.0/linux/1.2-extensions/vkspec.html#VUID-vkDestroyImageView-imageView-parameter)"
+[Debug][Error][Validation]"Validation Error: [ UNASSIGNED-Threading-Info ] Object 0: handle = 0x1c000000001c, type = VK_OBJECT_TYPE_IMAGE_VIEW; | MessageID = 0x5d6b67e2 | Couldn\'t find VkImageView Object 0x1c000000001c. This should not happen and may indicate a bug in the application."
+[Debug][Error][Validation]"Validation Error: [ UNASSIGNED-Threading-Info ] Object 0: handle = 0x1c000000001c, type = VK_OBJECT_TYPE_IMAGE_VIEW; | MessageID = 0x5d6b67e2 | Couldn\'t find VkImageView Object 0x1c000000001c. This should not happen and may indicate a bug in the application."
+[Debug][Error][Validation]"Validation Error: [ VUID-vkDestroyImage-image-parameter ] Object 0: handle = 0x5613883803c0, type = VK_OBJECT_TYPE_INSTANCE; | MessageID = 0x18c56777 | Invalid VkImage Object 0x1a000000001a. The Vulkan spec states: If image is not VK_NULL_HANDLE, image must be a valid VkImage handle (https://vulkan.lunarg.com/doc/view/1.2.148.0/linux/1.2-extensions/vkspec.html#VUID-vkDestroyImage-image-parameter)"
+[Debug][Error][Validation]"Validation Error: [ UNASSIGNED-Threading-Info ] Object 0: handle = 0x1a000000001a, type = VK_OBJECT_TYPE_IMAGE; | MessageID = 0x5d6b67e2 | Couldn\'t find VkImage Object 0x1a000000001a. This should not happen and may indicate a bug in the application."
+Segmentation fault (core dumped)
