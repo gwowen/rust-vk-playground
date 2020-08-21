@@ -394,7 +394,7 @@ impl VulkanAppCube {
             &physical_device_memory_properties,
             command_pool,
             graphics_queue,
-            &RECT_INDICES_DATA,
+            &RECT_TEX_COORD_INDICES_DATA,
         );
         let (uniform_buffers, uniform_buffers_memory) = share::v1::create_uniform_buffers(
             &device,
@@ -1039,7 +1039,7 @@ impl VulkanAppCube {
                 );
 
                 device.cmd_draw_indexed(command_buffer, 
-                    RECT_INDICES_DATA.len() as u32, 
+                    RECT_TEX_COORD_INDICES_DATA.len() as u32, 
                     1, 
                     0, 
                     0, 
