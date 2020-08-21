@@ -19,7 +19,7 @@ use std::path::Path;
 use std::ptr;
 
 // constants
-const WINDOW_TITLE: &'static str = "Cube";
+const WINDOW_TITLE: &'static str = "Depth buffer test";
 const WINDOW_WIDTH: u32 = 800;
 const WINDOW_HEIGHT: u32 = 600;
 
@@ -107,126 +107,6 @@ pub const RECT_TEX_COORD_VERTICES_DATA: [VertexV3; 8] = [
         color: [1.0, 1.0, 1.0],
         tex_coord: [0.0, 1.0],
     },
-    // VertexV3 {
-    //     pos: [-0.75, -0.75, 0.0],
-    //     color: [1.0, 0.0, 0.0],
-    //     tex_coord: [1.0, 0.0],
-    // },
-    // VertexV3 {
-    //     pos: [0.75, -0.75, 0.0],
-    //     color: [0.0, 1.0, 0.0],
-    //     tex_coord: [0.0, 0.0],
-    // },
-    // VertexV3 {
-    //     pos: [0.75, 0.75, 0.0],
-    //     color: [0.0, 0.0, 1.0],
-    //     tex_coord: [0.0, 1.0],
-    // },
-    // VertexV3 {
-    //     pos: [-0.75, 0.75, 0.0],
-    //     color: [1.0, 1.0, 1.0],
-    //     tex_coord: [1.0, 1.0],
-    // },
-    // VertexV3 {
-    //     pos: [-0.75, -0.75, 0.0],
-    //     color: [1.0, 0.0, 0.0],
-    //     tex_coord: [1.0, 0.0],
-    // },
-    // VertexV3 {
-    //     pos: [0.75, -0.75, 0.0],
-    //     color: [0.0, 1.0, 0.0],
-    //     tex_coord: [0.0, 0.0],
-    // },
-    // VertexV3 {
-    //     pos: [0.75, 0.75, 0.0],
-    //     color: [0.0, 0.0, 1.0],
-    //     tex_coord: [0.0, 1.0],
-    // },
-    // VertexV3 {
-    //     pos: [-0.75, 0.75, 0.0],
-    //     color: [1.0, 1.0, 1.0],
-    //     tex_coord: [1.0, 1.0],
-    // },
-    // VertexV3 {
-    //     pos: [-0.75, -0.75, 0.0],
-    //     color: [1.0, 0.0, 0.0],
-    //     tex_coord: [1.0, 0.0],
-    // },
-    // VertexV3 {
-    //     pos: [0.75, -0.75, 0.0],
-    //     color: [0.0, 1.0, 0.0],
-    //     tex_coord: [0.0, 0.0],
-    // },
-    // VertexV3 {
-    //     pos: [0.75, 0.75, 0.0],
-    //     color: [0.0, 0.0, 1.0],
-    //     tex_coord: [0.0, 1.0],
-    // },
-    // VertexV3 {
-    //     pos: [-0.75, 0.75, 0.0],
-    //     color: [1.0, 1.0, 1.0],
-    //     tex_coord: [1.0, 1.0],
-    // },
-    // VertexV3 {
-    //     pos: [-0.75, -0.75, 0.0],
-    //     color: [1.0, 0.0, 0.0],
-    //     tex_coord: [1.0, 0.0],
-    // },
-    // VertexV3 {
-    //     pos: [0.75, -0.75, 0.0],
-    //     color: [0.0, 1.0, 0.0],
-    //     tex_coord: [0.0, 0.0],
-    // },
-    // VertexV3 {
-    //     pos: [0.75, 0.75, 0.0],
-    //     color: [0.0, 0.0, 1.0],
-    //     tex_coord: [0.0, 1.0],
-    // },
-    // VertexV3 {
-    //     pos: [-0.75, 0.75, 0.0],
-    //     color: [1.0, 1.0, 1.0],
-    //     tex_coord: [1.0, 1.0],
-    // },
-    // VertexV3 {
-    //     pos: [-0.75, -0.75, 0.0],
-    //     color: [1.0, 0.0, 0.0],
-    //     tex_coord: [1.0, 0.0],
-    // },
-    // VertexV3 {
-    //     pos: [0.75, -0.75, 0.0],
-    //     color: [0.0, 1.0, 0.0],
-    //     tex_coord: [0.0, 0.0],
-    // },
-    // VertexV3 {
-    //     pos: [0.75, 0.75, 0.0],
-    //     color: [0.0, 0.0, 1.0],
-    //     tex_coord: [0.0, 1.0],
-    // },
-    // VertexV3 {
-    //     pos: [-0.75, 0.75, 0.0],
-    //     color: [1.0, 1.0, 1.0],
-    //     tex_coord: [1.0, 1.0],
-    // },
-    // VertexV3 {
-    //     pos: [-0.75, -0.75, 0.0],
-    //     color: [1.0, 0.0, 0.0],
-    //     tex_coord: [1.0, 0.0],
-    // },
-    // VertexV3 {
-    //     pos: [0.75, -0.75, 0.0],
-    //     color: [0.0, 1.0, 0.0],
-    //     tex_coord: [0.0, 0.0],
-    // },
-    // VertexV3 {
-    //     pos: [0.75, 0.75, 0.0],
-    //     color: [0.0, 0.0, 1.0],
-    //     tex_coord: [0.0, 1.0],
-    // },
-    // VertexV3 {
-    //     pos: [-0.75, 0.75, 0.0],
-    //     color: [1.0, 1.0, 1.0],
-    //     tex_coord: [1.0, 1.0],
-    // },
 ];
 
 pub const RECT_TEX_COORD_INDICES_DATA: [u32; 12] = [0, 1, 2, 2, 3, 0, 4, 5, 6, 6, 7, 4];
@@ -839,8 +719,8 @@ impl VulkanAppCube {
             s_type: vk::StructureType::PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO,
             p_next: ptr::null(),
             flags: vk::PipelineDepthStencilStateCreateFlags::empty(),
-            depth_test_enable: vk::FALSE,
-            depth_write_enable: vk::FALSE,
+            depth_test_enable: vk::TRUE,
+            depth_write_enable: vk::TRUE,
             depth_compare_op: vk::CompareOp::LESS_OR_EQUAL,
             depth_bounds_test_enable: vk::FALSE,
             stencil_test_enable: vk::FALSE,
