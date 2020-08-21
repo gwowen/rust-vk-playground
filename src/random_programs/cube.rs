@@ -1263,7 +1263,11 @@ impl VulkanApp for VulkanAppCube {
             self.swapchain_format,
             &self.swapchain_images,
         );
-        self.render_pass = share::v1::create_render_pass(&self.device, self.swapchain_format);
+        self.render_pass = VulkanAppCube::create_render_pass(
+            &self.instance,
+            &self.device,
+            self.physical_device, 
+            self.swapchain_format);
         let (graphics_pipeline, pipeline_layout) = VulkanAppCube::create_graphics_pipeline(
             &self.device,
             self.render_pass,
