@@ -38,3 +38,6 @@ path = "src/random_programs/texture_map.rs"
 [[bin]]
 name = "cube"
 path = "src/random_programs/cube.rs"
+[[bin]]
+name = "depth"
+path = "src/random_programs/depth.rs"
