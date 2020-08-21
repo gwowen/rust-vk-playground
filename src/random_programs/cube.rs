@@ -242,6 +242,7 @@ struct VulkanAppCube {
     debug_messenger: vk::DebugUtilsMessengerEXT,
 
     physical_device: vk::PhysicalDevice,
+    memory_properties: vk::PhysicalDeviceMemoryProperties,
     device: ash::Device,
 
     queue_family: QueueFamilyIndices,
@@ -353,12 +354,7 @@ impl VulkanAppCube {
             swapchain_stuff.swapchain_extent,
             ubo_layout,
         );
-        let swapchain_framebuffers = share::v1::create_framebuffers(
-            &device,
-            render_pass,
-            &swapchain_imageviews,
-            swapchain_stuff.swapchain_extent
-        );
+        
         let command_pool = share::v1::create_command_pool(&device, &queue_family);
         let (depth_image, depth_image_view, depth_image_memory) = 
             VulkanAppCube::create_depth_resources(
@@ -370,6 +366,13 @@ impl VulkanAppCube {
                 swapchain_stuff.swapchain_extent,
                 &physical_device_memory_properties,
             );
+        let swapchain_framebuffers = VulkanAppCube::create_framebuffers(
+            &device,
+            render_pass,
+            &swapchain_imageviews,
+            depth_image_view,
+            swapchain_stuff.swapchain_extent
+        );
         let (texture_image, texture_image_memory) = share::v1::create_texture_image(
             &device,
             command_pool,
@@ -436,6 +439,7 @@ impl VulkanAppCube {
             debug_messenger,
 
             physical_device,
+            memory_properties: physical_device_memory_properties,
             device,
 
             queue_family,
@@ -1268,6 +1272,20 @@ impl VulkanApp for VulkanAppCube {
         );
         self.graphics_pipeline = graphics_pipeline;
         self.pipeline_layout = pipeline_layout;
+
+        let depth_resources = VulkanAppCube::create_depth_resources(
+            &self.instance,
+            &self.device,
+            self.physical_device,
+            self.command_pool,
+            self.graphics_queue,
+            self.swapchain_extent,
+            &self.memory_properties,
+        );
+
+        self.depth_image = depth_resources.0;
+        self.depth_image_view = depth_resources.1;
+        self.depth_image_memory = depth_resources.2;
 
         self.swapchain_framebuffers = VulkanAppCube::create_framebuffers(
             &self.device,
