@@ -112,8 +112,8 @@ impl VulkanApp {
             &device,
             render_pass,
             swapchain_stuff.swapchain_extent,
-            "shaders/vert.spv",
-            "shaders/frag.spv",
+            "shaders/triangle/vert.spv",
+            "shaders/triangle/frag.spv",
         );
         let swapchain_framebuffers = share::v1::create_framebuffers(
             &device,
