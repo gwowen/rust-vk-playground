@@ -42,20 +42,21 @@ impl VertexV3 {
 
     pub fn get_attribute_descriptions() -> [vk::VertexInputAttributeDescription; 3] {
         [
+            // position
             vk::VertexInputAttributeDescription {
                 binding: 0,
                 location: 0, 
                 format: vk::Format::R32G32B32_SFLOAT,
                 offset: offset_of!(Self, pos) as u32,
             },
-
+            // color
             vk::VertexInputAttributeDescription {
                 binding: 0,
                 location: 1, 
                 format: vk::Format::R32G32B32_SFLOAT,
                 offset: offset_of!(Self, color) as u32,
             },
-
+            // tex_coord
             vk::VertexInputAttributeDescription {
                 binding: 0,
                 location: 2, 
@@ -478,6 +479,7 @@ impl VulkanAppCube {
         physical_device: vk::PhysicalDevice,
         surface_format: vk::Format,
     ) -> vk::RenderPass {
+        // attach color pass, depth buffer
         let color_attachment = vk::AttachmentDescription {
             flags: vk::AttachmentDescriptionFlags::empty(),
             format: surface_format,
