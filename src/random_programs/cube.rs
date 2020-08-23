@@ -66,29 +66,115 @@ impl VertexV3 {
     }
 }
 
-pub const RECT_TEX_COORD_VERTICES_DATA: [VertexV3; 8] = [
+pub const RECT_TEX_COORD_VERTICES_DATA: [VertexV3; 24] = [
+    // front
     VertexV3 {
-        pos: [-0.75, -0.75, 0.0],
+        pos: [-0.75, -0.75, 0.75],
         color: [1.0, 0.0, 0.0],
         tex_coord: [0.0, 0.0],
     },
     VertexV3 {
-        pos: [0.75, -0.75, 0.0],
+        pos: [0.75, -0.75, 0.75],
         color: [0.0, 1.0, 0.0],
         tex_coord: [1.0, 0.0],
     },
     VertexV3 {
-        pos: [0.75, 0.75, 0.0],
+        pos: [0.75, 0.75, 0.75],
         color: [0.0, 0.0, 1.0],
         tex_coord: [1.0, 1.0],
     },
     VertexV3 {
-        pos: [-0.75, 0.75, 0.0],
+        pos: [-0.75, 0.75, 0.75],
         color: [1.0, 1.0, 1.0],
         tex_coord: [0.0, 1.0],
     },
+    //top
+    VertexV3 {
+        pos: [-0.75, 0.75, 0.75],
+        color: [1.0, 0.0, 0.0],
+        tex_coord: [0.0, 0.0],
+    },
+    VertexV3 {
+        pos: [0.75, 0.75, 0.75],
+        color: [0.0, 1.0, 0.0],
+        tex_coord: [1.0, 0.0],
+    },
+    VertexV3 {
+        pos: [0.75, 0.75, -0.75],
+        color: [0.0, 0.0, 1.0],
+        tex_coord: [1.0, 1.0],
+    },
+    VertexV3 {
+        pos: [-0.75, 0.75, -0.75],
+        color: [1.0, 1.0, 1.0],
+        tex_coord: [0.0, 1.0],
+    },
+    // back
+    VertexV3 {
+        pos: [0.75, -0.75, -0.75],
+        color: [1.0, 0.0, 0.0],
+        tex_coord: [0.0, 0.0],
+    },
     VertexV3 {
         pos: [-0.75, -0.75, -0.75],
+        color: [0.0, 1.0, 0.0],
+        tex_coord: [1.0, 0.0],
+    },
+    VertexV3 {
+        pos: [-0.75, 0.75, -0.75],
+        color: [0.0, 0.0, 1.0],
+        tex_coord: [1.0, 1.0],
+    },
+    VertexV3 {
+        pos: [0.75, 0.75, -0.75],
+        color: [1.0, 1.0, 1.0],
+        tex_coord: [0.0, 1.0],
+    },
+    // bottom
+    VertexV3 {
+        pos: [-0.75, -0.75, -0.75],
+        color: [1.0, 0.0, 0.0],
+        tex_coord: [0.0, 0.0],
+    },
+    VertexV3 {
+        pos: [0.75, -0.75, -0.75],
+        color: [0.0, 1.0, 0.0],
+        tex_coord: [1.0, 0.0],
+    },
+    VertexV3 {
+        pos: [0.75, -0.75, 0.75],
+        color: [0.0, 0.0, 1.0],
+        tex_coord: [1.0, 1.0],
+    },
+    VertexV3 {
+        pos: [-0.75, -0.75, 0.75],
+        color: [1.0, 1.0, 1.0],
+        tex_coord: [0.0, 1.0],
+    },
+    // left
+    VertexV3 {
+        pos: [-0.75, -0.75, -0.75],
+        color: [1.0, 0.0, 0.0],
+        tex_coord: [0.0, 0.0],
+    },
+    VertexV3 {
+        pos: [-0.75, -0.75, 0.75],
+        color: [0.0, 1.0, 0.0],
+        tex_coord: [1.0, 0.0],
+    },
+    VertexV3 {
+        pos: [-0.75, 0.75, 0.75],
+        color: [0.0, 0.0, 1.0],
+        tex_coord: [1.0, 1.0],
+    },
+    VertexV3 {
+        pos: [-0.75, 0.75, -0.75],
+        color: [1.0, 1.0, 1.0],
+        tex_coord: [0.0, 1.0],
+    },
+    // right
+    VertexV3 {
+        pos: [0.75, -0.75, 0.75],
         color: [1.0, 0.0, 0.0],
         tex_coord: [0.0, 0.0],
     },
@@ -103,133 +189,27 @@ pub const RECT_TEX_COORD_VERTICES_DATA: [VertexV3; 8] = [
         tex_coord: [1.0, 1.0],
     },
     VertexV3 {
-        pos: [-0.75, 0.75, -0.75],
+        pos: [0.75, 0.75, 0.75],
         color: [1.0, 1.0, 1.0],
         tex_coord: [0.0, 1.0],
     },
-    // VertexV3 {
-    //     pos: [-0.75, -0.75, 0.0],
-    //     color: [1.0, 0.0, 0.0],
-    //     tex_coord: [1.0, 0.0],
-    // },
-    // VertexV3 {
-    //     pos: [0.75, -0.75, 0.0],
-    //     color: [0.0, 1.0, 0.0],
-    //     tex_coord: [0.0, 0.0],
-    // },
-    // VertexV3 {
-    //     pos: [0.75, 0.75, 0.0],
-    //     color: [0.0, 0.0, 1.0],
-    //     tex_coord: [0.0, 1.0],
-    // },
-    // VertexV3 {
-    //     pos: [-0.75, 0.75, 0.0],
-    //     color: [1.0, 1.0, 1.0],
-    //     tex_coord: [1.0, 1.0],
-    // },
-    // VertexV3 {
-    //     pos: [-0.75, -0.75, 0.0],
-    //     color: [1.0, 0.0, 0.0],
-    //     tex_coord: [1.0, 0.0],
-    // },
-    // VertexV3 {
-    //     pos: [0.75, -0.75, 0.0],
-    //     color: [0.0, 1.0, 0.0],
-    //     tex_coord: [0.0, 0.0],
-    // },
-    // VertexV3 {
-    //     pos: [0.75, 0.75, 0.0],
-    //     color: [0.0, 0.0, 1.0],
-    //     tex_coord: [0.0, 1.0],
-    // },
-    // VertexV3 {
-    //     pos: [-0.75, 0.75, 0.0],
-    //     color: [1.0, 1.0, 1.0],
-    //     tex_coord: [1.0, 1.0],
-    // },
-    // VertexV3 {
-    //     pos: [-0.75, -0.75, 0.0],
-    //     color: [1.0, 0.0, 0.0],
-    //     tex_coord: [1.0, 0.0],
-    // },
-    // VertexV3 {
-    //     pos: [0.75, -0.75, 0.0],
-    //     color: [0.0, 1.0, 0.0],
-    //     tex_coord: [0.0, 0.0],
-    // },
-    // VertexV3 {
-    //     pos: [0.75, 0.75, 0.0],
-    //     color: [0.0, 0.0, 1.0],
-    //     tex_coord: [0.0, 1.0],
-    // },
-    // VertexV3 {
-    //     pos: [-0.75, 0.75, 0.0],
-    //     color: [1.0, 1.0, 1.0],
-    //     tex_coord: [1.0, 1.0],
-    // },
-    // VertexV3 {
-    //     pos: [-0.75, -0.75, 0.0],
-    //     color: [1.0, 0.0, 0.0],
-    //     tex_coord: [1.0, 0.0],
-    // },
-    // VertexV3 {
-    //     pos: [0.75, -0.75, 0.0],
-    //     color: [0.0, 1.0, 0.0],
-    //     tex_coord: [0.0, 0.0],
-    // },
-    // VertexV3 {
-    //     pos: [0.75, 0.75, 0.0],
-    //     color: [0.0, 0.0, 1.0],
-    //     tex_coord: [0.0, 1.0],
-    // },
-    // VertexV3 {
-    //     pos: [-0.75, 0.75, 0.0],
-    //     color: [1.0, 1.0, 1.0],
-    //     tex_coord: [1.0, 1.0],
-    // },
-    // VertexV3 {
-    //     pos: [-0.75, -0.75, 0.0],
-    //     color: [1.0, 0.0, 0.0],
-    //     tex_coord: [1.0, 0.0],
-    // },
-    // VertexV3 {
-    //     pos: [0.75, -0.75, 0.0],
-    //     color: [0.0, 1.0, 0.0],
-    //     tex_coord: [0.0, 0.0],
-    // },
-    // VertexV3 {
-    //     pos: [0.75, 0.75, 0.0],
-    //     color: [0.0, 0.0, 1.0],
-    //     tex_coord: [0.0, 1.0],
-    // },
-    // VertexV3 {
-    //     pos: [-0.75, 0.75, 0.0],
-    //     color: [1.0, 1.0, 1.0],
-    //     tex_coord: [1.0, 1.0],
-    // },
-    // VertexV3 {
-    //     pos: [-0.75, -0.75, 0.0],
-    //     color: [1.0, 0.0, 0.0],
-    //     tex_coord: [1.0, 0.0],
-    // },
-    // VertexV3 {
-    //     pos: [0.75, -0.75, 0.0],
-    //     color: [0.0, 1.0, 0.0],
-    //     tex_coord: [0.0, 0.0],
-    // },
-    // VertexV3 {
-    //     pos: [0.75, 0.75, 0.0],
-    //     color: [0.0, 0.0, 1.0],
-    //     tex_coord: [0.0, 1.0],
-    // },
-    // VertexV3 {
-    //     pos: [-0.75, 0.75, 0.0],
-    //     color: [1.0, 1.0, 1.0],
-    //     tex_coord: [1.0, 1.0],
-    // },
+
 ];
 
-pub const RECT_TEX_COORD_INDICES_DATA: [u32; 12] = [0, 1, 2, 2, 3, 0, 4, 5, 6, 6, 7, 4];
+pub const RECT_TEX_COORD_INDICES_DATA: [u32; 36] = [
+    // front
+    0, 1, 2, 2, 3, 0, 
+    // top
+    4, 5, 6, 6, 7, 4,
+    // back
+    8, 9, 10, 10, 11, 8,
+    // bottom
+    12, 13, 14, 14, 15, 12,
+    // left
+    16, 17, 18, 18, 19, 16,
+    // right
+    20, 21, 22, 22, 23, 20,
+    ];
 
 struct VulkanAppCube {
     window: winit::window::Window,
