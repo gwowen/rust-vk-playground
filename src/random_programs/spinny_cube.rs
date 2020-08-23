@@ -19,7 +19,7 @@ use std::path::Path;
 use std::ptr;
 
 // constants
-const WINDOW_TITLE: &'static str = "Cube";
+const WINDOW_TITLE: &'static str = "Spinning Cube";
 const WINDOW_WIDTH: u32 = 800;
 const WINDOW_HEIGHT: u32 = 600;
 
@@ -1037,7 +1037,11 @@ impl VulkanAppCube {
         command_buffers 
     }
 
-    fn update_uniform_buffer(&mut self, current_image: usize, _delta_time: f32) {
+    fn update_uniform_buffer(&mut self, current_image: usize, delta_time: f32) {
+        self.uniform_transform.model =
+            Matrix4::from_axis_angle(Vector3::new(0.0, 0.0, 1.0), Deg(90.0) * delta_time)
+                * self.uniform_transform.model;
+
         let ubos = [self.uniform_transform.clone()];
 
         let buffer_size = (std::mem::size_of::<UniformBufferObject>() * ubos.len()) as u64;
