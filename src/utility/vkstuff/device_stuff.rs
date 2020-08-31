@@ -12,8 +12,9 @@ use std::ptr;
 use crate::utility::constants::*;
 use crate::utility::debug;
 use crate::utility::platforms;
+use crate::utility::tools;
 use crate::utility::structures::*;
-use crate::utility::swapchain_stuff::*;
+use crate::utility::vkstuff::swapchain_stuff::*;
 
 pub fn pick_physical_device(
     instance: &ash::Instance,
@@ -78,7 +79,7 @@ pub fn is_physical_device_suitable(
 pub fn create_logical_device(
     instance: &ash::Instance,
     physical_device: vk::PhysicalDevice,
-    validation: &super::debug::ValidationInfo,
+    validation: &debug::ValidationInfo,
     device_extensions: &DeviceExtension,
     surface_stuff: &SurfaceStuff,
 ) -> (ash::Device, QueueFamilyIndices) {
@@ -207,7 +208,7 @@ pub fn check_device_extension_support(
     let mut available_extension_names = vec![];
 
     for extension in available_extensions.iter() {
-        let extension_name = super::tools::vk_to_string(&extension.extension_name);
+        let extension_name = tools::vk_to_string(&extension.extension_name);
 
         available_extension_names.push(extension_name);
     }
