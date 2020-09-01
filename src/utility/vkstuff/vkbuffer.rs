@@ -340,3 +340,28 @@ pub fn create_index_buffer(
     (index_buffer, index_buffer_memory)
 }
 
+pub fn create_uniform_buffers(
+    device: &ash::Device,
+    device_memory_properties: &vk::PhysicalDeviceMemoryProperties,
+    swapchain_image_count: usize,
+) -> (Vec<vk::Buffer>, Vec<vk::DeviceMemory>) {
+    let buffer_size = ::std::mem::size_of::<UniformBufferObject>();
+
+    let mut uniform_buffers = vec![];
+    let mut uniform_buffers_memory = vec![];
+
+    for _ in 0..swapchain_image_count {
+        let (uniform_buffer, uniform_buffer_memory) = create_buffer(
+            device,
+            buffer_size as u64,
+            vk::BufferUsageFlags::UNIFORM_BUFFER,
+            vk::MemoryPropertyFlags::HOST_VISIBLE | vk::MemoryPropertyFlags::HOST_COHERENT,
+            device_memory_properties,
+        );
+        uniform_buffers.push(uniform_buffer);
+        uniform_buffers_memory.push(uniform_buffer_memory);
+    }
+
+    (uniform_buffers, uniform_buffers_memory)
+}
+

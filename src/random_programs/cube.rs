@@ -328,7 +328,7 @@ impl VulkanAppCube {
             &device, 
             physical_device,
             swapchain_stuff.swapchain_format);
-        let ubo_layout = share::v2::create_descriptor_set_layout(&device);
+        let ubo_layout = vkstuff::vkdescriptor::create_descriptor_set_layout(&device);
         let (graphics_pipeline, pipeline_layout) = VulkanAppCube::create_graphics_pipeline(
             &device,
             render_pass,
@@ -336,7 +336,7 @@ impl VulkanAppCube {
             ubo_layout,
         );
         
-        let command_pool = share::v1::create_command_pool(&device, &queue_family);
+        let command_pool = vkstuff::vkcommand::create_command_pool(&device, &queue_family);
         let (depth_image, depth_image_view, depth_image_memory) = 
             VulkanAppCube::create_depth_resources(
                 &instance,
@@ -354,37 +354,37 @@ impl VulkanAppCube {
             depth_image_view,
             swapchain_stuff.swapchain_extent
         );
-        let (texture_image, texture_image_memory) = share::v1::create_texture_image(
+        let (texture_image, texture_image_memory) = vkstuff::vkimage::create_texture_image(
             &device,
             command_pool,
             graphics_queue,
             &physical_device_memory_properties,
             &Path::new("resources/textures/container.jpg")
         );
-        let texture_image_view = share::v1::create_texture_image_view(&device, texture_image, 1);
-        let texture_sampler = share::v1::create_texture_sampler(&device);
-        let (vertex_buffer, vertex_buffer_memory) = share::v1::create_vertex_buffer(
+        let texture_image_view = vkstuff::vkimage::create_texture_image_view(&device, texture_image, 1);
+        let texture_sampler = vkstuff::vkimage::create_texture_sampler(&device);
+        let (vertex_buffer, vertex_buffer_memory) = vkstuff::vkbuffer::create_vertex_buffer(
             &device,
             &physical_device_memory_properties,
             command_pool,
             graphics_queue,
             &RECT_TEX_COORD_VERTICES_DATA,
         );
-        let (index_buffer, index_buffer_memory) = share::v1::create_index_buffer(
+        let (index_buffer, index_buffer_memory) = vkstuff::vkbuffer::create_index_buffer(
             &device,
             &physical_device_memory_properties,
             command_pool,
             graphics_queue,
             &RECT_TEX_COORD_INDICES_DATA,
         );
-        let (uniform_buffers, uniform_buffers_memory) = share::v1::create_uniform_buffers(
+        let (uniform_buffers, uniform_buffers_memory) = vkstuff::vkbuffer::create_uniform_buffers(
             &device,
             &physical_device_memory_properties,
             swapchain_stuff.swapchain_images.len()
         );
         let descriptor_pool =
-            share::v2::create_descriptor_pool(&device, swapchain_stuff.swapchain_images.len());
-        let descriptor_sets = share::v2::create_descriptor_sets(
+            vkstuff::vkdescriptor::create_descriptor_pool(&device, swapchain_stuff.swapchain_images.len());
+        let descriptor_sets = vkstuff::vkdescriptor::create_descriptor_sets(
             &device,
             descriptor_pool,
             ubo_layout,
@@ -405,7 +405,7 @@ impl VulkanAppCube {
             pipeline_layout,
             &descriptor_sets
         );
-        let sync_objects = share::v1::create_sync_objects(&device, MAX_FRAMES_IN_FLIGHT);
+        let sync_objects = vkstuff::vksemaphore::create_sync_objects(&device, MAX_FRAMES_IN_FLIGHT);
         
 
         VulkanAppCube {

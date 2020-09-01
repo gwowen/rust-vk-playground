@@ -8,3 +8,5 @@ pub mod vkswapchain;
 pub mod vkinstance;
 pub mod vkformat;
 pub mod vksurface;
+pub mod vksemaphore;
+pub mod vkcommand;
