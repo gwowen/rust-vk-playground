@@ -285,7 +285,7 @@ impl VulkanAppCube {
             utility::window::init_window(&event_loop, WINDOW_TITLE, WINDOW_WIDTH, WINDOW_HEIGHT);
         
         let entry = ash::Entry::new().unwrap();
-        let instance = vkstuff::instance_stuff::create_instance(
+        let instance = vkstuff::vkinstance::create_instance(
             &entry,
             WINDOW_TITLE,
             VALIDATION.is_enable,
