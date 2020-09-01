@@ -14,7 +14,7 @@ use crate::utility::debug;
 use crate::utility::platforms;
 use crate::utility::tools;
 use crate::utility::structures::*;
-use crate::utility::vkstuff::swapchain_stuff::*;
+use crate::utility::vkstuff::vkswapchain::*;
 
 pub fn pick_physical_device(
     instance: &ash::Instance,

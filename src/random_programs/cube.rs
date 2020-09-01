@@ -3,6 +3,7 @@ use vk_playground::{
     utility::constants::*,
     utility::debug::*,
     utility::share,
+    utility::vkstuff,
     utility::structures::*,
     utility::window::{ProgramProc, VulkanApp},
 };
@@ -284,7 +285,7 @@ impl VulkanAppCube {
             utility::window::init_window(&event_loop, WINDOW_TITLE, WINDOW_WIDTH, WINDOW_HEIGHT);
         
         let entry = ash::Entry::new().unwrap();
-        let instance = share::create_instance(
+        let instance = vkstuff::instance_stuff::create_instance(
             &entry,
             WINDOW_TITLE,
             VALIDATION.is_enable,

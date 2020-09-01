@@ -19,7 +19,7 @@ use image::GenericImageView;
 
 use std::cmp::max;
 
-use crate::utility::vkstuff::buffer_stuff::*;
+use crate::utility::vkstuff::vkbuffer::*;
 
 use super::*;
 
