@@ -292,14 +292,14 @@ impl VulkanAppCube {
             &VALIDATION.required_validation_layers.to_vec(),
         );
         let surface_stuff =
-        share::create_surface(&entry, &instance, &window, WINDOW_WIDTH, WINDOW_HEIGHT);
+        vkstuff::vksurface::create_surface(&entry, &instance, &window, WINDOW_WIDTH, WINDOW_HEIGHT);
         let (debug_utils_loader, debug_messenger) =
             setup_debug_utils(VALIDATION.is_enable, &entry, &instance);
         let physical_device =
-            share::pick_physical_device(&instance, &surface_stuff, &DEVICE_EXTENSIONS);
+            vkstuff::vkdevice::pick_physical_device(&instance, &surface_stuff, &DEVICE_EXTENSIONS);
         let physical_device_memory_properties =
             unsafe { instance.get_physical_device_memory_properties(physical_device) };
-        let (device, queue_family) = share::create_logical_device(
+        let (device, queue_family) = vkstuff::vkdevice::create_logical_device(
             &instance,
             physical_device,
             &VALIDATION,
@@ -310,7 +310,7 @@ impl VulkanAppCube {
             unsafe { device.get_device_queue(queue_family.graphics_family.unwrap(), 0) };
         let present_queue =
             unsafe { device.get_device_queue(queue_family.present_family.unwrap(), 0) };
-        let swapchain_stuff = share::create_swapchain(
+        let swapchain_stuff = vkstuff::vkswapchain::create_swapchain(
             &instance,
             &device,
             physical_device,
@@ -318,7 +318,7 @@ impl VulkanAppCube {
             &surface_stuff,
             &queue_family,
         );
-        let swapchain_imageviews = share::v1::create_image_views(
+        let swapchain_imageviews = vkstuff::vkimage::create_image_views(
             &device,
             swapchain_stuff.swapchain_format,
             &swapchain_stuff.swapchain_images,

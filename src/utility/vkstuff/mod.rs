@@ -7,3 +7,4 @@ pub mod vkimage;
 pub mod vkswapchain;
 pub mod vkinstance;
 pub mod vkformat;
+pub mod vksurface;
