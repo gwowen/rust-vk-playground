@@ -961,7 +961,7 @@ impl VulkanAppCube {
                 vk::ClearValue {
                     // clear value for color buffer
                     color: vk::ClearColorValue {
-                        float32: [0.0, 0.0, 0.0, 1.0],
+                        float32: [0.2, 0.3, 0.3, 1.0],
                     }
                 },
 
