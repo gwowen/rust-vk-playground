@@ -44,3 +44,6 @@ path = "src/random_programs/depth.rs"
 [[bin]]
 name = "spinny_cube"
 path = "src/random_programs/spinny_cube.rs"
+[[bin]]
+name = "multi_cube"
+path = "src/random_programs/multi_cube.rs"
