@@ -11,7 +11,7 @@ use vk_playground::{
 use ash::version::DeviceV1_0;
 use ash::version::InstanceV1_0;
 use ash::vk;
-use cgmath::{Deg, Matrix4, Point3, Vector3};
+use cgmath::{Deg, Matrix4, Point3, Vector3, vec3, Rad, perspective};
 use memoffset::offset_of;
 
 
@@ -406,6 +406,7 @@ impl VulkanAppCube {
             &descriptor_sets
         );
         let sync_objects = vkstuff::vksemaphore::create_sync_objects(&device, MAX_FRAMES_IN_FLIGHT);
+        let tick_stuff = utility::fps_limiter::FPSLimiter::new();
         
 
         VulkanAppCube {
@@ -455,7 +456,8 @@ impl VulkanAppCube {
             index_buffer_memory,
 
             uniform_transform: UniformBufferObject {
-                model: Matrix4::from_angle_z(Deg(90.0)),
+                model: Matrix4::from_axis_angle(vec3(0.5, 1.0, 0.0),
+                       Rad(tick_stuff.delta_time() as f32)),
                 view: Matrix4::look_at(
                     Point3::new(2.0, 2.0, 2.0),
                     Point3::new(0.0, 0.0, 0.0),
